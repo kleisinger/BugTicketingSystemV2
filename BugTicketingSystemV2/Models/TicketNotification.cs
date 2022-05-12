@@ -1,11 +1,11 @@
 ﻿namespace BugTicketingSystemV2.Models
 {
-    public class TicketComment
+    public class TicketNotification
     {
         // properties
         public int Id { get; set; }
         public string Body { get; set; }
-        public DateTime CreatedDate { get; set; }
+
 
         // relationships
         public int TicketId { get; set; }
@@ -15,18 +15,16 @@
         public AppUser User { get; set; }
 
 
-        public TicketComment(string body, Ticket ticket, AppUser submitter)
+        public TicketNotification(string body, Ticket ticket, AppUser submitter)
         {
             Body = body;
-            CreatedDate = DateTime.Now;
             Ticket = ticket;
             User = submitter;
         }
 
-        public TicketComment()
+        public TicketNotification()
         {
 
         }
     }
 }
-

@@ -1,4 +1,6 @@
-﻿namespace BugTicketingSystemV2.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BugTicketingSystemV2.Models
 {
     public class Ticket
     {
