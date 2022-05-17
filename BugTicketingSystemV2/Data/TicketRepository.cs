@@ -1,6 +1,7 @@
 ﻿using System;
 using BugTicketingSystemV2.Data.DAL;
 using BugTicketingSystemV2.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugTicketingSystemV2.Data
 {
@@ -31,7 +32,10 @@ namespace BugTicketingSystemV2.Data
 
 		public ICollection<Ticket> GetAll()
 		{
-			return context.Tickets.ToList();
+			var allTickets = context.Tickets;
+			//.Include(d => d.Submitter).Include(u => u.User
+			//);
+			return allTickets.ToList();
 		}
 
 		public ICollection<Ticket> GetList(Func<Ticket, bool> whereFunction)

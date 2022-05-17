@@ -67,10 +67,16 @@
                 @Html.DisplayFor(modelItem => item.ticketPriority)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Submitter.Id)
+                @foreach (var user in @ViewBag.SUsers)
+                {
+                    if (item.SubmitterId == user.Id)
+                    {
+                        @user.UserName
+                    }
+                }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
+                @Html.DisplayFor(modelItem => item.User.UserName)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

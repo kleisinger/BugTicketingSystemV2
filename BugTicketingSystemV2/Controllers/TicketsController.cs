@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using BugTicketingSystemV2.Data;
 using BugTicketingSystemV2.Models;
 using Microsoft.AspNetCore.Identity;
+using BugTicketingSystemV2.Data.BLL;
 
 namespace BugTicketingSystemV2.Controllers
 {
@@ -17,18 +18,28 @@ namespace BugTicketingSystemV2.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
+        public ICollection<TicketHistory> TicketHistories { get; set; }
+        public ICollection<TicketComment> TicketComments { get; set; }
+        public ICollection<TicketAttachment> TicketAttachments { get; set; }
+        public ICollection<TicketNotification> TicketNotifications { get; set; }
+        public string SubmitterId { get; set; }
+        public string UserId { get; set; }
+        public TicketRepository repo;
+
         public TicketsController(BugTicketingSystemV2Context context, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            repo = new TicketRepository(_context);
         }
 
         // GET: Tickets
         public async Task<IActionResult> Index()
         {
-            var bugTicketingSystemV2Context = _context.Tickets.Include(t => t.Submitter).Include(t => t.User);
-            return View(await bugTicketingSystemV2Context.ToListAsync());
+            //var bugTicketingSystemV2Context = _context.Tickets.Include(t => t.Submitter).Include(t => t.User);
+            ViewBag.SUsers = _userManager.Users.ToList();
+            return View(repo.GetAll());
         }
 
         // GET: Tickets/Details/5
@@ -90,8 +101,15 @@ namespace BugTicketingSystemV2.Controllers
             {
                 return NotFound();
             }
-            ViewData["SubmitterId"] = new SelectList(_context.Set<SubmitterUser>(), "Id", "Id", ticket.SubmitterId);
-            ViewData["UserId"] = new SelectList(_context.Set<AppUser>(), "Id", "Id", ticket.UserId);
+
+            TicketHistories = ticket.TicketHistories;
+            TicketComments = ticket.TicketComments;
+            TicketAttachments = ticket.TicketAttachments;
+            SubmitterId = ticket.SubmitterId;
+            UserId = ticket.UserId;
+            TicketNotifications = ticket.TicketNotifications;
+            //ViewBag.SubmitterId = new SelectList(_context.Set<SubmitterUser>(), "Id", "UserEmail", ticket.SubmitterId);
+            //ViewBag.UserId = new SelectList(_context.Set<AppUser>(), "Id", "UserEmail", ticket.UserId);
             return View(ticket);
         }
 
@@ -111,6 +129,12 @@ namespace BugTicketingSystemV2.Controllers
             {
                 try
                 {
+                    ticket.TicketHistories = TicketHistories;
+                    ticket.TicketComments = TicketComments;
+                    ticket.TicketAttachments = TicketAttachments;
+                    ticket.TicketNotifications = TicketNotifications;
+                    ticket.UserId = UserId;
+                    ticket.SubmitterId = SubmitterId;
                     _context.Update(ticket);
                     await _context.SaveChangesAsync();
                 }
@@ -127,8 +151,8 @@ namespace BugTicketingSystemV2.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SubmitterId"] = new SelectList(_context.Set<SubmitterUser>(), "Id", "Id", ticket.SubmitterId);
-            ViewData["UserId"] = new SelectList(_context.Set<AppUser>(), "Id", "Id", ticket.UserId);
+            //ViewData["SubmitterId"] = new SelectList(_context.Set<SubmitterUser>(), "Id", "Id", ticket.SubmitterId);
+            //ViewData["UserId"] = new SelectList(_context.Set<AppUser>(), "Id", "Id", ticket.UserId);
             return View(ticket);
         }
 
