@@ -9,6 +9,7 @@ using BugTicketingSystemV2.Data;
 using BugTicketingSystemV2.Models;
 using Microsoft.AspNetCore.Identity;
 using BugTicketingSystemV2.Data.BLL;
+using System.Collections.Specialized;
 
 namespace BugTicketingSystemV2.Controllers
 {
@@ -22,8 +23,8 @@ namespace BugTicketingSystemV2.Controllers
         public ICollection<TicketComment> TicketComments { get; set; }
         public ICollection<TicketAttachment> TicketAttachments { get; set; }
         public ICollection<TicketNotification> TicketNotifications { get; set; }
-        public string SubmitterId { get; set; }
-        public string UserId { get; set; }
+        public string SubmitterId;
+        public string UserId;
         public TicketRepository repo;
 
         public TicketsController(BugTicketingSystemV2Context context, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
@@ -34,7 +35,6 @@ namespace BugTicketingSystemV2.Controllers
             repo = new TicketRepository(_context);
         }
 
-        // GET: Tickets
         public async Task<IActionResult> Index()
         {
             //var bugTicketingSystemV2Context = _context.Tickets.Include(t => t.Submitter).Include(t => t.User);
@@ -42,7 +42,6 @@ namespace BugTicketingSystemV2.Controllers
             return View(repo.GetAll());
         }
 
-        // GET: Tickets/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Tickets == null)
@@ -62,82 +61,92 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticket);
         }
 
-        // GET: Tickets/Create
         public IActionResult Create()
         {
-            ViewData["SubmitterId"] = new SelectList(_context.Set<SubmitterUser>(), "Id", "Id");
-            ViewData["UserId"] = new SelectList(_context.Set<AppUser>(), "Id", "Id");
+
+            ViewBag.YourEnumsStatus = new SelectList(Enum.GetValues(typeof(TicketStatus)), TicketStatus.Unassigned);
+            ViewBag.YourEnumsType = new SelectList(Enum.GetValues(typeof(TicketType)), TicketType.InformationRequest);
+            ViewBag.YourEnumsPriority = new SelectList(Enum.GetValues(typeof(TicketPriority)), TicketPriority.Low);
+
+            // Suggestion: should we add a default enum when creating
+
             return View();
         }
 
-        // POST: Tickets/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,CreatedDate,UpdatedDate,ticketStatus,ticketType,ticketPriority,SubmitterId,UserId")] Ticket ticket)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,CreatedDate,ticketStatus,ticketType,ticketPriority")] Ticket ticket)
         {
-            if (ModelState.IsValid)
+            string name = User.Identity.Name;
+            SubmitterUser user = (SubmitterUser)await _userManager.FindByEmailAsync(name);
+            ticket.SubmitterId = user.Id;
+            ticket.Submitter = user;
+            if(user != null)
             {
+                ViewBag.YourEnumsStatus = new SelectList(Enum.GetValues(typeof(TicketStatus)), ticket.ticketStatus);
+                ViewBag.YourEnumsType = new SelectList(Enum.GetValues(typeof(TicketType)), ticket.ticketType);
+                ViewBag.YourEnumsPriority = new SelectList(Enum.GetValues(typeof(TicketPriority)), ticket.ticketPriority);
+                var rand = new Random();
+                int num = rand.Next(1, 4);
+                ticket.Project = await _context.Projects.FindAsync(num);
                 _context.Add(ticket);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SubmitterId"] = new SelectList(_context.Set<SubmitterUser>(), "Id", "Id", ticket.SubmitterId);
-            ViewData["UserId"] = new SelectList(_context.Set<AppUser>(), "Id", "Id", ticket.UserId);
             return View(ticket);
         }
 
-        // GET: Tickets/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Tickets == null)
             {
                 return NotFound();
             }
-
             var ticket = await _context.Tickets.FindAsync(id);
             if (ticket == null)
             {
                 return NotFound();
             }
-
             TicketHistories = ticket.TicketHistories;
             TicketComments = ticket.TicketComments;
             TicketAttachments = ticket.TicketAttachments;
             SubmitterId = ticket.SubmitterId;
             UserId = ticket.UserId;
             TicketNotifications = ticket.TicketNotifications;
-            //ViewBag.SubmitterId = new SelectList(_context.Set<SubmitterUser>(), "Id", "UserEmail", ticket.SubmitterId);
-            //ViewBag.UserId = new SelectList(_context.Set<AppUser>(), "Id", "UserEmail", ticket.UserId);
+            ViewBag.YourEnumsStatus = new SelectList(Enum.GetValues(typeof(TicketStatus)), ticket.ticketStatus);
+            ViewBag.YourEnumsType = new SelectList(Enum.GetValues(typeof(TicketType)), ticket.ticketType);
+            ViewBag.YourEnumsPriority = new SelectList(Enum.GetValues(typeof(TicketPriority)), ticket.ticketPriority);
             return View(ticket);
         }
 
-        // POST: Tickets/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,CreatedDate,UpdatedDate,ticketStatus,ticketType,ticketPriority,SubmitterId,UserId")] Ticket ticket)
+        public async Task<IActionResult> Edit(int id, string Title, string Description, DateTime CreatedDate, DateTime UpdatedDate, TicketStatus ticketStatus, TicketType ticketType, TicketPriority ticketPriority)
         {
-            if (id != ticket.Id)
+            var ticket = await _context.Tickets.FindAsync(id);
+
+            if (ticket == null)
             {
                 return NotFound();
             }
-
+            
+            ViewBag.YourEnumsStatus = new SelectList(Enum.GetValues(typeof(TicketStatus)), ticket.ticketStatus);
+            ViewBag.YourEnumsType = new SelectList(Enum.GetValues(typeof(TicketType)), ticket.ticketType);
+            ViewBag.YourEnumsPriority = new SelectList(Enum.GetValues(typeof(TicketPriority)), ticket.ticketPriority);
             if (ModelState.IsValid)
             {
                 try
                 {
-                    ticket.TicketHistories = TicketHistories;
-                    ticket.TicketComments = TicketComments;
-                    ticket.TicketAttachments = TicketAttachments;
-                    ticket.TicketNotifications = TicketNotifications;
-                    ticket.UserId = UserId;
-                    ticket.SubmitterId = SubmitterId;
-                    _context.Update(ticket);
-                    await _context.SaveChangesAsync();
-                }
+                ticket.Title = Title;
+                ticket.Description = Description;
+                ticket.CreatedDate = CreatedDate;
+                ticket.UpdatedDate = UpdatedDate;
+                ticket.ticketStatus = ticketStatus;
+                ticket.ticketType = ticketType;
+                ticket.ticketPriority = ticketPriority;
+                repo.Update(ticket);
+                _context.SaveChangesAsync();
+            }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!TicketExists(ticket.Id))
@@ -151,12 +160,9 @@ namespace BugTicketingSystemV2.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            //ViewData["SubmitterId"] = new SelectList(_context.Set<SubmitterUser>(), "Id", "Id", ticket.SubmitterId);
-            //ViewData["UserId"] = new SelectList(_context.Set<AppUser>(), "Id", "Id", ticket.UserId);
             return View(ticket);
         }
 
-        // GET: Tickets/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Tickets == null)
@@ -176,7 +182,6 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticket);
         }
 
-        // POST: Tickets/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
