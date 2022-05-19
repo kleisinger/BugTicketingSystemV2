@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using BugTicketingSystemV2.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugTicketingSystemV2.Controllers
 {
@@ -66,10 +67,19 @@ namespace BugTicketingSystemV2.Controllers
             IdentityRole role = await roleManager.FindByIdAsync(id);
             List<AppUser> members = new List<AppUser>();
             List<AppUser> nonMembers = new List<AppUser>();
-            foreach (AppUser user in userManager.Users)
+            var userList = new List<AppUser>();
+            userList = await userManager.Users.ToListAsync();
+            foreach (AppUser user in userList)
             {
-                var list = await userManager.IsInRoleAsync(user, role.Name) ? members : nonMembers;
-                list.Add(user);
+                try
+                {
+                    var list = await userManager.IsInRoleAsync(user, role.Name) ? members : nonMembers;
+                    list.Add(user);
+                } catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                
             }
             return View(new RoleEdit
             {
