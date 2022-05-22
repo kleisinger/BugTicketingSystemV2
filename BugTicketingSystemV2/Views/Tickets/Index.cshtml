@@ -67,22 +67,42 @@
                 @Html.DisplayFor(modelItem => item.ticketPriority)
             </td>
             <td>
-                @foreach (var user in @ViewBag.SUsers)
+                @Html.DisplayFor(modelItem => item.Submitter.UserName)
+                @*@foreach (var user in @ViewBag.SUsers)
                 {
                     if (item.SubmitterId == user.Id)
                     {
                         @user.UserName
 
                     }
-                }
+                }*@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.User.UserName)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @{
+                    List<SelectListItem> listItems = new List<SelectListItem>();
+                    listItems.Add(new SelectListItem
+                    {
+                        Text = "Edit",
+                        Value = "@item.Id"
+                    });
+                    listItems.Add(new SelectListItem
+                    {
+                        Text = "Exemplo2",
+                        Value = "",
+                        Selected = true
+                    });
+                    listItems.Add(new SelectListItem
+                    {
+                        Text = "Exemplo3",
+                        Value = "Exemplo3"
+                    });
+                }
+                <a asp-action="Edit" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Delete</a>
             </td>
         </tr>
 }
