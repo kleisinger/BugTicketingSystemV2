@@ -97,7 +97,7 @@ using Microsoft.EntityFrameworkCore;
             await userManager.CreateAsync(Dev2);
             await userManager.AddToRoleAsync(Dev2, "Developer");
 
-            AppUser Submitter1 = new AppUser
+            SubmitterUser Submitter1 = new SubmitterUser
             {
                 Email = "submitter1@mitt.ca",
                 NormalizedEmail = "SUBMITTER1@MITT.CA",
@@ -111,7 +111,7 @@ using Microsoft.EntityFrameworkCore;
             await userManager.CreateAsync(Submitter1);
             await userManager.AddToRoleAsync(Submitter1, "Submitter");
 
-            AppUser Submitter2 = new AppUser
+            SubmitterUser Submitter2 = new SubmitterUser
             {
                 Email = "submitter2@mitt.ca",
                 NormalizedEmail = "SUBMITTER2@MITT.CA",

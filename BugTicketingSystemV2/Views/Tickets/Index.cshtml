@@ -7,37 +7,37 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary" style="float: left; margin-top: -5px;">Create New</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                Title
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                Description
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
+                Created Date
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UpdatedDate)
+                Updated Date
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ticketStatus)
+                Status
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ticketType)
+                Type
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ticketPriority)
+                Priority
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Submitter)
+                Submitter
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.User)
+                Handler
             </th>
             <th></th>
         </tr>
@@ -67,15 +67,42 @@
                 @Html.DisplayFor(modelItem => item.ticketPriority)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Submitter.Id)
+                @Html.DisplayFor(modelItem => item.Submitter.UserName)
+                @*@foreach (var user in @ViewBag.SUsers)
+                {
+                    if (item.SubmitterId == user.Id)
+                    {
+                        @user.UserName
+
+                    }
+                }*@
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
+                @Html.DisplayFor(modelItem => item.User.UserName)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @{
+                    List<SelectListItem> listItems = new List<SelectListItem>();
+                    listItems.Add(new SelectListItem
+                    {
+                        Text = "Edit",
+                        Value = "@item.Id"
+                    });
+                    listItems.Add(new SelectListItem
+                    {
+                        Text = "Exemplo2",
+                        Value = "",
+                        Selected = true
+                    });
+                    listItems.Add(new SelectListItem
+                    {
+                        Text = "Exemplo3",
+                        Value = "Exemplo3"
+                    });
+                }
+                <a asp-action="Edit" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Delete</a>
             </td>
         </tr>
 }
