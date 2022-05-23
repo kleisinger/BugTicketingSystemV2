@@ -5,6 +5,7 @@ using BugTicketingSystemV2.Data;
 using BugTicketingSystemV2.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
+using BugTicketingSystemV2.Data.BLL;
 
 namespace BugTicketingSystemV2.Controllers
 {
@@ -15,6 +16,7 @@ namespace BugTicketingSystemV2.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         public TicketRepository repo;
+        public TicketBusinessLogic ticketBll;
 
         public TicketsController(BugTicketingSystemV2Context context, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
@@ -22,6 +24,7 @@ namespace BugTicketingSystemV2.Controllers
             _userManager = userManager;
             _roleManager = roleManager;
             repo = new TicketRepository(_context);
+            ticketBll = new TicketBusinessLogic(repo);
         }
 
         public async Task<IActionResult> Index()
@@ -31,48 +34,19 @@ namespace BugTicketingSystemV2.Controllers
             Task<bool> IsSubmitter = _userManager.IsInRoleAsync(user, "Submitter");
             Task<bool> IsDeveloperUser = _userManager.IsInRoleAsync(user, "Developer");
             Task<bool> IsProjectManager = _userManager.IsInRoleAsync(user, "Project Manager");
-            //ViewBag.SUsers = await _userManager.Users.ToListAsync();
             if (await IsSubmitter)
             {
-                return View(repo.SubmitterTickets(user.Id));
+                return View(ticketBll.SubmitterTickets(user.Id));
             } else if(await IsDeveloperUser)
             {
-                return View(repo.DeveloperAssignedTickets(user.Id));
+                return View(ticketBll.DeveloperAssignedTickets(user.Id));
             }
-            return View(repo.GetAll());
+            return View(ticketBll.GetAll());
         }
 
-        [Authorize(Roles = "Submitter")]
-        public async Task<IActionResult> SubmitterTickets()
+        public async Task<IActionResult> Details(int id)
         {
-            string name = User.Identity.Name;
-            SubmitterUser user = (SubmitterUser)await _userManager.FindByEmailAsync(name);
-            if(user == null)
-            {
-                return NotFound();
-            }
-            ViewBag.SUsers = _userManager.Users.ToList();
-
-            return View(repo.SubmitterTickets(user.Id));
-        }
-
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Tickets == null)
-            {
-                return NotFound();
-            }
-
-            var ticket = await _context.Tickets
-                .Include(t => t.Submitter)
-                .Include(t => t.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (ticket == null)
-            {
-                return NotFound();
-            }
-
-            return View(ticket);
+            return View(ticketBll.Get(id));
         }
 
         [Authorize(Roles = "Submitter")]
@@ -82,10 +56,7 @@ namespace BugTicketingSystemV2.Controllers
             ViewBag.YourEnumsStatus = new SelectList(Enum.GetValues(typeof(TicketStatus)), TicketStatus.Unassigned);
             ViewBag.YourEnumsType = new SelectList(Enum.GetValues(typeof(TicketType)), TicketType.InformationRequest);
             ViewBag.YourEnumsPriority = new SelectList(Enum.GetValues(typeof(TicketPriority)), TicketPriority.Low);
-            //Lis
-            //ViewBag.YourProjects = new SelectList(_context.Projects, "Pick a project");
             ViewBag.YourProjects = _context.Projects.ToList();
-            // Suggestion: should we add a default enum when creating
             return View();
         }
 
@@ -104,23 +75,16 @@ namespace BugTicketingSystemV2.Controllers
                 ViewBag.YourEnumsType = new SelectList(Enum.GetValues(typeof(TicketType)), ticket.ticketType);
                 ViewBag.YourEnumsPriority = new SelectList(Enum.GetValues(typeof(TicketPriority)), ticket.ticketPriority);
                 ViewBag.YourProjects = new SelectList(_context.Projects, "Pick a project");
-                //var rand = new Random();
-                //int num = rand.Next(1, 4);
                 ticket.Project = project;
-                _context.Tickets.Add(ticket);
-                await _context.SaveChangesAsync();
+                ticketBll.AddTicket(ticket);
                 return RedirectToAction(nameof(Index));
             }
             return View(ticket);
         }
 
         [Authorize(Roles="Developer")]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null || _context.Tickets == null)
-            {
-                return NotFound();
-            }
             var ticket = await _context.Tickets.FindAsync(id);
             if (ticket == null)
             {
@@ -129,7 +93,7 @@ namespace BugTicketingSystemV2.Controllers
             ViewBag.YourEnumsStatus = new SelectList(Enum.GetValues(typeof(TicketStatus)), ticket.ticketStatus);
             ViewBag.YourEnumsType = new SelectList(Enum.GetValues(typeof(TicketType)), ticket.ticketType);
             ViewBag.YourEnumsPriority = new SelectList(Enum.GetValues(typeof(TicketPriority)), ticket.ticketPriority);
-            return View(ticket);
+            return View(ticketBll.Get(id));
         }
 
         [HttpPost]
@@ -138,72 +102,28 @@ namespace BugTicketingSystemV2.Controllers
         {
             var ticket = await _context.Tickets.FindAsync(id);
 
-            if (ticket == null)
-            {
-                return NotFound();
-            }
-            
             ViewBag.YourEnumsStatus = new SelectList(Enum.GetValues(typeof(TicketStatus)), ticket.ticketStatus);
             ViewBag.YourEnumsType = new SelectList(Enum.GetValues(typeof(TicketType)), ticket.ticketType);
             ViewBag.YourEnumsPriority = new SelectList(Enum.GetValues(typeof(TicketPriority)), ticket.ticketPriority);
             if (ModelState.IsValid)
             {
-                try
-                {
-                    repo.Edit(ticket, Title, Description, CreatedDate, UpdatedDate, ticketStatus, ticketType, ticketPriority);
-            }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TicketExists(ticket.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                ticketBll.Edit(ticket, Title, Description, CreatedDate, UpdatedDate, ticketStatus, ticketType, ticketPriority);
                 return RedirectToAction(nameof(Index));
             }
             return View(ticket);
         }
 
         [Authorize(Roles ="Project Manager")]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null || _context.Tickets == null)
-            {
-                return NotFound();
-            }
-
-            var ticket = await _context.Tickets
-                .Include(t => t.Submitter)
-                .Include(t => t.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (ticket == null)
-            {
-                return NotFound();
-            }
-
-            return View(ticket);
+            return View(ticketBll.Get(id));
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Tickets == null)
-            {
-                return Problem("Entity set 'BugTicketingSystemV2Context.Ticket'  is null.");
-            }
-            var ticket = await _context.Tickets.FindAsync(id);
-            if (ticket != null)
-            {
-                repo.Remove(ticket);
-                repo.Save();
-            }
-            
-            await _context.SaveChangesAsync();
+            ticketBll.DeleteTicket(id);
             return RedirectToAction(nameof(Index));
         }
 

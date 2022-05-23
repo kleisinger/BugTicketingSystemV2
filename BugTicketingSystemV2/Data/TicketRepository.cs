@@ -22,7 +22,10 @@ namespace BugTicketingSystemV2.Data
 		// read
 		public Ticket Get(int id)
 		{
-			return context.Tickets.First(a => a.Id == id);
+			Ticket ticket = context.Tickets
+				.Include(t => t.Submitter)
+				.Include(t => t.User).First(a => a.Id == id);
+			return ticket;
 		}
 
 		public Ticket Get(Func<Ticket, bool> firstFunction)
@@ -32,57 +35,30 @@ namespace BugTicketingSystemV2.Data
 
 		public ICollection<Ticket> GetAll()
 		{
-			var allTickets = context.Tickets;
+			var allTickets = context.Tickets
+				.Include(t => t.Submitter)
+				.Include(t => t.User);
 			//.Include(d => d.Submitter).Include(u => u.User
 			//);
 			return allTickets.ToList();
 		}
 
-		public ICollection<Ticket> SubmitterTickets(string submitterId)
+		public ICollection<Ticket> GetSubmitterTickets(string id)
         {
-			List<Ticket> Tickets = context.Tickets.Where(s => s.SubmitterId == submitterId).ToList();
-			return Tickets;
+			var tickets = context.Tickets.Where(s => s.SubmitterId == id).ToList();
+			return tickets;
         }
 
-		public ICollection<Ticket> DeveloperAssignedTickets(string devID)
+		public ICollection<Ticket> GetDeveloperAssignedTickets(string id)
 		{
-			List<Ticket> Tickets = context.Tickets.Where(s => s.UserId == devID).ToList();
-			return Tickets;
+			var tickets = context.Tickets.Where(s => s.UserId == id).ToList();
+			return tickets;
 		}
 
-		//public ICollection<Ticket> ProjectTickets(string projectManagerId)
-		//{
-		//	List<Ticket> ProjectManagerTickets = new List<Ticket>();
-		//	foreach(var project in context.Projects)
-  //          {
-		//		foreach(var ticket in project.Tickets)
-  //              {
-		//			if()
-  //              }
-  //          }
-		//}
 
 		public ICollection<Ticket> GetList(Func<Ticket, bool> whereFunction)
 		{
 			return context.Tickets.Where(whereFunction).ToList();
-		}
-
-		public void Create()
-        {
-
-        }
-
-		public void Edit(Ticket ticket, string Title, string Description, DateTime CreatedDate, DateTime UpdatedDate, TicketStatus ticketStatus, TicketType ticketType, TicketPriority ticketPriority)
-        {
-			ticket.Title = Title;
-			ticket.Description = Description;
-			ticket.CreatedDate = CreatedDate;
-			ticket.UpdatedDate = UpdatedDate;
-			ticket.ticketStatus = ticketStatus;
-			ticket.ticketType = ticketType;
-			ticket.ticketPriority = ticketPriority;
-			context.Update(ticket);
-			context.SaveChangesAsync();
 		}
 
 		public void Update(Ticket ticket)
@@ -92,6 +68,7 @@ namespace BugTicketingSystemV2.Data
 
 		public void Remove(Ticket ticket)
 		{
+			
 			context.Tickets.Remove(ticket);
 		}
 
