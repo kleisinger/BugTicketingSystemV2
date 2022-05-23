@@ -1,6 +1,7 @@
 ﻿using System;
 using BugTicketingSystemV2.Data.DAL;
 using BugTicketingSystemV2.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugTicketingSystemV2.Data.DAL
 {
@@ -30,22 +31,34 @@ namespace BugTicketingSystemV2.Data.DAL
         // READ
         public virtual Project Get(int id)
         {
-            return _db.Projects.Find(id);
+            var Projects = _db.Projects.Include(p => p.Users)
+                                       .Include(p => p.Tickets).ThenInclude(t => t.User);
+
+            return Projects.First(p => p.Id == id);
         }
 
         public Project Get(Func<Project, bool> firstFunction)
         {
-            return _db.Projects.First(firstFunction);
+            var Projects = _db.Projects.Include(p => p.Users)
+                                       .Include(p => p.Tickets).ThenInclude(t => t.User);
+
+            return Projects.First(firstFunction);
         }
 
         public virtual ICollection<Project> GetAll()
         {
-            return _db.Projects.ToList();
+            var Projects = _db.Projects.Include(p => p.Users)
+                                       .Include(p => p.Tickets).ThenInclude(t => t.User);
+
+            return Projects.ToList();
         }
 
         public ICollection<Project> GetList(Func<Project, bool> whereFunction)
         {
-            return _db.Projects.Where(whereFunction).ToList();
+            var Projects = _db.Projects.Include(p => p.Users)
+                                       .Include(p => p.Tickets).ThenInclude(t => t.User);
+
+            return Projects.Where(whereFunction).ToList();
         }
 
         // UPDATE
@@ -65,7 +78,5 @@ namespace BugTicketingSystemV2.Data.DAL
         {
             _db.SaveChanges();
         }
-
-
     }
 }
