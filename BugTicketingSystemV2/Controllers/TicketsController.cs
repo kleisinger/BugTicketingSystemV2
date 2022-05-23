@@ -113,6 +113,13 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticket);
         }
 
+        [Authorize(Roles = "Developer")]
+        public async Task<IActionResult> MarkAsResolved(int id)
+        {
+            ticketBll.MarkTicketAsResolved(id);
+            return RedirectToAction(nameof(Index));
+        }
+
         [Authorize(Roles ="Project Manager")]
         public async Task<IActionResult> Delete(int id)
         {
