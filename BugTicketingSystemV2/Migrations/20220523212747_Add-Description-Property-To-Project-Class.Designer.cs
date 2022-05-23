@@ -4,6 +4,7 @@ using BugTicketingSystemV2.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BugTicketingSystemV2.Migrations
 {
     [DbContext(typeof(BugTicketingSystemV2Context))]
-    partial class BugTicketingSystemV2ContextModelSnapshot : ModelSnapshot
+    [Migration("20220523212747_Add-Description-Property-To-Project-Class")]
+    partial class AddDescriptionPropertyToProjectClass
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +36,7 @@ namespace BugTicketingSystemV2.Migrations
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("AppUserProject", (string)null);
+                    b.ToTable("AppUserProject");
                 });
 
             modelBuilder.Entity("BugTicketingSystemV2.Models.AppUser", b =>
@@ -126,7 +128,7 @@ namespace BugTicketingSystemV2.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("BugTicketingSystemV2.Models.Ticket", b =>
@@ -178,7 +180,7 @@ namespace BugTicketingSystemV2.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Tickets", (string)null);
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("BugTicketingSystemV2.Models.TicketAttachment", b =>
@@ -217,7 +219,7 @@ namespace BugTicketingSystemV2.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TicketAttachments", (string)null);
+                    b.ToTable("TicketAttachments");
                 });
 
             modelBuilder.Entity("BugTicketingSystemV2.Models.TicketComment", b =>
@@ -248,7 +250,7 @@ namespace BugTicketingSystemV2.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TicketComments", (string)null);
+                    b.ToTable("TicketComments");
                 });
 
             modelBuilder.Entity("BugTicketingSystemV2.Models.TicketHistory", b =>
@@ -295,7 +297,7 @@ namespace BugTicketingSystemV2.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TicketHistory", (string)null);
+                    b.ToTable("TicketHistory");
                 });
 
             modelBuilder.Entity("BugTicketingSystemV2.Models.TicketNotification", b =>
@@ -323,7 +325,7 @@ namespace BugTicketingSystemV2.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TicketNotifications", (string)null);
+                    b.ToTable("TicketNotifications");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

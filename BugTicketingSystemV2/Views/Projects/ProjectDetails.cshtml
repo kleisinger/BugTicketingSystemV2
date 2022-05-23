@@ -1,0 +1,54 @@
+﻿@model BugTicketingSystemV2.Models.Project
+
+<h1>@Model.Title</h1>
+<h4>Description:</h4>
+<p>@Model.Description</p>
+
+
+<h4>Tickets</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Type</th>
+            <th>Priority</th>
+            <th>Developer</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var ticket in @Model.Tickets) {
+        <tr>
+            <td>@ticket.Title</td>
+            <td>@ticket.ticketStatus</td>
+            <td>@ticket.ticketType</td>
+            <td>@ticket.ticketPriority</td>
+            <td>@ticket.User</td>
+
+            <td>
+                <a asp-controller="Tickets" asp-action="TicketDetails" asp-route-id="@ticket.Id">Details</a>
+            </td>
+
+            <td>
+                @if (@ViewBag.CurrentRole.Contains("Admin") || @ViewBag.CurrentRole.Contains("Project Manager") )
+                {
+                    <a asp-controller="Projects" asp-action="UpdateTicket" asp-route-id="@ticket.Id">Update Ticket</a>
+                }
+            </td>
+
+            <td>
+                @if(ticket.User == null)
+                {
+                    <a asp-controller="Projects" asp-action="AssignTicket" asp-route-id="@ticket.Id">Assign Ticket</a>
+                }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+

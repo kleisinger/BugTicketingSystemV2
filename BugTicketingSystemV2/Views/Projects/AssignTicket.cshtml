@@ -1,0 +1,17 @@
+﻿<h2>Assign Task to a Developer</h2>
+
+
+<form asp-controller="Projects" asp-action="AssignTicket" method="post">
+    <input type="hidden" name="ticketId" value="@ViewBag.Ticket.Id"/>
+    <label>Ticket Name: @ViewBag.Ticket.Title</label>
+    <br />
+    <br />   
+    <select asp-items="@ViewBag.Developers" name="devId"></select>
+    <br />
+    <br />  
+    <button type="submit">Submit</button>
+</form>
+
+<br />
+
+<p>@ViewBag.Message</p>
