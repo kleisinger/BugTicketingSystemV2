@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using BugTicketingSystemV2.Models;
 using Microsoft.Extensions.DependencyInjection;
+using BugTicketingSystemV2.Data.DAL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,10 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<BugTicketingSystemV2Context>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, builder => builder.EnableRetryOnFailure()));
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<IRepository<Ticket>, TicketRepository>();
 
 builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
@@ -21,7 +23,7 @@ builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireCo
 
 var app = builder.Build();
 
-// Seeding Scope
+//Seeding Scope
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

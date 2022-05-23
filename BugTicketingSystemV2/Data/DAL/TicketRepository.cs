@@ -1,6 +1,7 @@
 ﻿using System;
 using BugTicketingSystemV2.Data.DAL;
 using BugTicketingSystemV2.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugTicketingSystemV2.Data
 {
@@ -21,7 +22,10 @@ namespace BugTicketingSystemV2.Data
 		// read
 		public Ticket Get(int id)
 		{
-			return context.Tickets.First(a => a.Id == id);
+			Ticket ticket = context.Tickets
+				.Include(t => t.Submitter)
+				.Include(t => t.User).First(a => a.Id == id);
+			return ticket;
 		}
 
 		public Ticket Get(Func<Ticket, bool> firstFunction)
@@ -31,8 +35,26 @@ namespace BugTicketingSystemV2.Data
 
 		public ICollection<Ticket> GetAll()
 		{
-			return context.Tickets.ToList();
+			var allTickets = context.Tickets
+				.Include(t => t.Submitter)
+				.Include(t => t.User);
+			//.Include(d => d.Submitter).Include(u => u.User
+			//);
+			return allTickets.ToList();
 		}
+
+		public ICollection<Ticket> GetSubmitterTickets(string id)
+        {
+			var tickets = context.Tickets.Where(s => s.SubmitterId == id).ToList();
+			return tickets;
+        }
+
+		public ICollection<Ticket> GetDeveloperAssignedTickets(string id)
+		{
+			var tickets = context.Tickets.Where(s => s.UserId == id).ToList();
+			return tickets;
+		}
+
 
 		public ICollection<Ticket> GetList(Func<Ticket, bool> whereFunction)
 		{
@@ -46,6 +68,7 @@ namespace BugTicketingSystemV2.Data
 
 		public void Remove(Ticket ticket)
 		{
+			
 			context.Tickets.Remove(ticket);
 		}
 
