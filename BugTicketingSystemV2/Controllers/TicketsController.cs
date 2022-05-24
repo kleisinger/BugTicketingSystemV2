@@ -27,19 +27,29 @@ namespace BugTicketingSystemV2.Controllers
             ticketBll = new TicketBusinessLogic(repo);
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? ResId)
         {
             string name = User.Identity.Name;
             AppUser user = await _userManager.FindByEmailAsync(name);
-            Task<bool> IsSubmitter = _userManager.IsInRoleAsync(user, "Submitter");
-            Task<bool> IsDeveloperUser = _userManager.IsInRoleAsync(user, "Developer");
-            Task<bool> IsProjectManager = _userManager.IsInRoleAsync(user, "Project Manager");
-            if (await IsSubmitter)
+            bool IsSubmitter = await _userManager.IsInRoleAsync(user, "Submitter");
+            bool IsDeveloperUser = await _userManager.IsInRoleAsync(user, "Developer");
+            bool IsProjectManager = await _userManager.IsInRoleAsync(user, "Project Manager");
+            if (IsSubmitter)
             {
+                ViewBag.user = "Submitter";
                 return View(ticketBll.SubmitterTickets(user.Id));
-            } else if(await IsDeveloperUser)
+            } else if(IsDeveloperUser)
             {
+                ViewBag.user = "Developer";
                 return View(ticketBll.DeveloperAssignedTickets(user.Id));
+            } else if (IsProjectManager)
+            {
+                ViewBag.user = "Project Manager";
+                if(ResId != null)
+                {
+                    return View(ticketBll.GetAll().Where(s => s.Project.Users.Contains(user)));
+                }
+                return View(ticketBll.GetAll().Where(s => s.ticketStatus != TicketStatus.Resolved));
             }
             return View(ticketBll.GetAll());
         }
@@ -50,7 +60,7 @@ namespace BugTicketingSystemV2.Controllers
         }
 
         [Authorize(Roles = "Submitter")]
-        public IActionResult Create()
+        public IActionResult Create(int? Pid)
         {
 
             ViewBag.YourEnumsStatus = new SelectList(Enum.GetValues(typeof(TicketStatus)), TicketStatus.Unassigned);
@@ -113,7 +123,7 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticket);
         }
 
-        [Authorize(Roles = "Developer")]
+        [Authorize(Roles = "Developer, Project Manager")]
         public async Task<IActionResult> MarkAsResolved(int id)
         {
             ticketBll.MarkTicketAsResolved(id);

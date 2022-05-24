@@ -82,7 +82,9 @@ namespace BugTicketingSystemV2.Data.BLL
 
 		public void MarkTicketAsResolved(int id)
         {
-			//repo.
+			Ticket ticketToResolve = repo.Get(id);
+			ticketToResolve.ticketStatus = TicketStatus.Resolved;
+			repo.Save();
         }
 
 		public void DeleteTicket(int id)

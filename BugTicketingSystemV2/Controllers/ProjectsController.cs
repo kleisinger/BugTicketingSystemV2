@@ -61,12 +61,15 @@ namespace BugTicketingSystemV2.Controllers
         }
 
         // GET
-        public async Task<IActionResult> ProjectDetails(int id)
+        public async Task<IActionResult> ProjectDetails(int id, int? AllId)
         {
             var CurrentUserName = User.Identity.Name;
             ViewBag.CurrentUser = await _userManager.FindByNameAsync(CurrentUserName);
             ViewBag.CurrentRole = await _userManager.GetRolesAsync(ViewBag.CurrentUser);
-
+            if(AllId != null)
+            {
+                return View(_projectBLL.GetProjectById(id));
+            }
             return View(_projectBLL.GetProjectById(id));
         }
 
