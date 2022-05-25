@@ -22,7 +22,7 @@ namespace BugTicketingSystemV2.Controllers
         public ProjectRepository _projectRepo;
         public TicketRepository _ticketRepo;
         public ProjectBusinessLogic _projectBLL;
-        //public TicketBusinessLogic _ticketBLL;
+        public TicketBusinessLogic _ticketBLL;
 
         public ProjectsController(BugTicketingSystemV2Context context, 
             UserManager<AppUser> userManager, 
@@ -34,7 +34,7 @@ namespace BugTicketingSystemV2.Controllers
             _projectRepo = new ProjectRepository(_context);
             _ticketRepo = new TicketRepository(_context);
             _projectBLL = new ProjectBusinessLogic(_projectRepo);
-            //_ticketBLL = new TicketBusinessLogic(_ticketRepo);
+            _ticketBLL = new TicketBusinessLogic(_ticketRepo);
         }
 
         public IActionResult Index()
@@ -46,8 +46,12 @@ namespace BugTicketingSystemV2.Controllers
 
         // GET
         [Authorize(Roles = "Admin, Project Manager")]
-        public IActionResult AllProjects()
+        public async Task<IActionResult> AllProjects()
         {
+            var CurrentUserName = User.Identity.Name;
+            ViewBag.CurrentUser = await _userManager.FindByNameAsync(CurrentUserName);
+            ViewBag.CurrentRole = await _userManager.GetRolesAsync(ViewBag.CurrentUser);
+
             return View(_projectBLL.GetAllProjects());
         }
 
@@ -115,6 +119,7 @@ namespace BugTicketingSystemV2.Controllers
 
         // GET
         // Still in progress
+        // Submitter in the GET in the TICKET DAL is preventing this from working rn
         [Authorize(Roles = "Admin, Project Manager")]
         public async Task<IActionResult> AssignTicket(int id)
         {
@@ -134,15 +139,54 @@ namespace BugTicketingSystemV2.Controllers
             return View();
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> AssignTask(string devId, int ticketId)
-        //{
-        //    Ticket Ticket = _ticketBLL.GetTicketById(ticketId);
-        //    AppUser Dev = await _userManager.FindByIdAsync(devId);
+        [HttpPost]
+        public async Task<IActionResult> AssignTicket(string devId, int ticketId)
+        {
+            Ticket Ticket = _ticketBLL.Get(ticketId);
+            AppUser Dev = await _userManager.FindByIdAsync(devId);
+            var ProjectId = Ticket.Project.Id;
 
-        //    Ticket.UserId = devId;
+            Ticket.UserId = devId;
+            Ticket.User = Dev;
+            Ticket.ticketStatus = TicketStatus.Assigned;
+            _context.SaveChanges();
 
-        //}
+            return RedirectToAction("ProjectDetails", new { id = ProjectId });
+        }
+
+        // GET
+        // Still in progress
+        [Authorize(Roles = "Admin, Project Manager")]
+        public async Task<IActionResult> AssignProject(int id)
+        {
+            List<AppUser> PMs = new List<AppUser>();
+            IdentityRole PMRole = await _roleManager.FindByNameAsync("Project Manager");
+            foreach (var user in _context.Users.ToList())
+            {
+                IdentityRole role = await _roleManager.FindByIdAsync(PMRole.Id);
+                if (await _userManager.IsInRoleAsync(user, role.Name))
+                {
+                    PMs.Add(user);
+                };
+            }
+
+            ViewBag.PMs = new SelectList(PMs, "Id", "UserName");
+            ViewBag.Project = _context.Projects.First(t => t.Id == id);
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignProject(string pmId, int projectId)
+        {
+            Project project = _projectBLL.GetProjectById(projectId);
+            AppUser PM = await _userManager.FindByIdAsync(pmId);
+
+            project.Users.Add(PM);
+            _context.SaveChanges();
+
+            return RedirectToAction("ProjectDetails", new { id = projectId });
+        }
+
 
 
     }

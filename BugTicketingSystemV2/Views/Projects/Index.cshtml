@@ -1,11 +1,8 @@
-﻿
-@{
-    ViewData["Title"] = "Index";
-}
+﻿<h1>Projects Index</h1>
 
-<h1>Index</h1>
-
-@* <a asp-controller="Projects" asp-action="AllProjects" asp-route-id="@item.Id">Edit</a> |*@
-<a asp-controller="Projects" asp-action="AllProjects">All Projects</a> |
-<a asp-controller="Projects" asp-action="CurrentProjects" asp-route-id="">Current Projects</a> |
+<div>
+    <a asp-controller="Projects" asp-action="AllProjects">All Projects</a> |
+    <a asp-controller="Projects" asp-action="CurrentProjects" asp-route-id="">Current Projects</a> |
+    <a asp-controller="Projects" asp-action="AddProject" asp-route-id="">Create New Project</a>
+</div>
 

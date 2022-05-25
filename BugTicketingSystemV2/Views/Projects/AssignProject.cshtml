@@ -1,0 +1,20 @@
+﻿<h2>Assign a Project Manager</h2>
+
+
+<form asp-controller="Projects" asp-action="AssignProject" method="post">
+    <input type="hidden" name="projectId" value="@ViewBag.Project.Id"/>
+    <label>Ticket Name: @ViewBag.Project.Title</label>
+    <br />
+    <br />   
+    <select asp-items="@ViewBag.PMs" name="pmId"></select>
+    <br />
+    <br />  
+    <button type="submit">Submit</button>
+</form>
+
+<br />
+<div>
+    <a asp-controller="Projects" asp-action="AllProjects">Back to List</a>
+</div>
+
+<p>@ViewBag.Message</p>
