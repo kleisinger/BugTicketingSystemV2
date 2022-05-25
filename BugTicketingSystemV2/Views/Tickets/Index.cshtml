@@ -8,6 +8,9 @@
 
 <p>
     <a asp-action="Create" class="btn btn-primary" style="float: left; margin-top: -5px;">Create New</a>
+    @if (ViewBag.user == "Project Manager")
+    {
+    }
 </p>
 <table class="table">
     <thead>
@@ -19,10 +22,10 @@
                 Description
             </th>
             <th>
-                Created Date
+                Created
             </th>
             <th>
-                Updated Date
+                Project
             </th>
             <th>
                 Status
@@ -55,7 +58,7 @@
                 @Html.DisplayFor(modelItem => item.CreatedDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UpdatedDate)
+                @Html.DisplayFor(modelItem => item.Project.Title)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ticketStatus)
@@ -100,9 +103,9 @@
                         Value = "Exemplo3"
                     });
                 }
-                <a asp-action="Edit" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id" style=text-decoration: none">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id" style="text-decoration: none">Details</a>
+                @*<a asp-action="Delete" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Resolved</a>*@
             </td>
         </tr>
 }
