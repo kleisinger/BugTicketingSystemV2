@@ -24,7 +24,11 @@ namespace BugTicketingSystemV2.Data.BLL
         {
             try
             {
-                return Repo.Get(id);
+                Project project = Repo.Get(id);
+                if(project != null)
+                    return Repo.Get(id);
+                else
+                    throw new Exception("Project was not found.");
             }
             catch (Exception ex)
             {
