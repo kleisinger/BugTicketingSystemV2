@@ -25,4 +25,10 @@
     <PackageReference Include="System.Diagnostics.Tools" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Data\DAL\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\DAL\" />
+  </ItemGroup>
 </Project>

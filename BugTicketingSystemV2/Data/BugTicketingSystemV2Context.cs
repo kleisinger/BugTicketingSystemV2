@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BugTicketingSystemV2.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 
 namespace BugTicketingSystemV2.Data
 {
@@ -22,6 +21,5 @@ namespace BugTicketingSystemV2.Data
         public DbSet<TicketNotification> TicketNotifications { get; set; }
         public DbSet<TicketHistory> TicketHistory { get; set; }
         public DbSet<TicketAttachment> TicketAttachments { get; set; }
-        public virtual DbSet<IdentityRole> Roles { get; set; }
     }
 }

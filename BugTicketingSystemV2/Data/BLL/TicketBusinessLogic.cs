@@ -8,13 +8,19 @@ namespace BugTicketingSystemV2.Data.BLL
 	public class TicketBusinessLogic
 	{
 		public TicketRepository repo;
+        private IRepository<Ticket> @object;
 
-		public TicketBusinessLogic(TicketRepository repository)
+        public TicketBusinessLogic(TicketRepository repository)
 			{
 				repo = repository;
 			}
 
-			public List<Ticket> GetAll()
+        public TicketBusinessLogic(IRepository<Ticket> @object)
+        {
+            this.@object = @object;
+        }
+
+        public List<Ticket> GetAll()
 			{
 				return repo.GetAll().ToList();
 			}
@@ -73,6 +79,13 @@ namespace BugTicketingSystemV2.Data.BLL
 			List<Ticket> Tickets = repo.GetDeveloperAssignedTickets(devID).ToList();
 			return Tickets;
 		}
+
+		public void MarkTicketAsResolved(int id)
+        {
+			Ticket ticketToResolve = repo.Get(id);
+			ticketToResolve.ticketStatus = TicketStatus.Resolved;
+			repo.Save();
+        }
 
 		public void DeleteTicket(int id)
         {
