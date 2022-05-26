@@ -45,13 +45,19 @@ namespace BugTicketingSystemV2.Data
 
 		public ICollection<Ticket> GetSubmitterTickets(string id)
         {
-			var tickets = context.Tickets.Where(s => s.SubmitterId == id).ToList();
+			var tickets = context.Tickets.Where(s => s.SubmitterId == id).Where(s => s.ticketStatus != TicketStatus.Resolved).ToList();
+			return tickets;
+        }
+
+		public ICollection<Ticket> GetProjectManagerTickets(string id)
+        {
+			var tickets = context.Tickets.Where(s => s.SubmitterId == id).Where(s => s.ticketStatus != TicketStatus.Resolved).ToList();
 			return tickets;
         }
 
 		public ICollection<Ticket> GetDeveloperAssignedTickets(string id)
 		{
-			var tickets = context.Tickets.Where(s => s.UserId == id).ToList();
+			var tickets = context.Tickets.Where(s => s.UserId == id).Where(s => s.ticketStatus != TicketStatus.Resolved).ToList();
 			return tickets;
 		}
 
@@ -60,6 +66,7 @@ namespace BugTicketingSystemV2.Data
 		{
 			return context.Tickets.Where(whereFunction).ToList();
 		}
+
 
 		public void Update(Ticket ticket)
 		{
