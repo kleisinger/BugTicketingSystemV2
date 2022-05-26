@@ -47,7 +47,8 @@ namespace BugTicketingSystemV2.Data.DAL
 
         public virtual ICollection<Project> GetAll()
         {
-            var Projects = _db.Projects;
+            var Projects = _db.Projects.Include(p => p.Users)
+                                       .Include(p => p.Tickets).ThenInclude(t => t.User); 
 
             return Projects.ToList();
         }

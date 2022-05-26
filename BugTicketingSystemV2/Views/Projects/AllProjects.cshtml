@@ -25,7 +25,7 @@
                @{
                     HashSet<string> pms = new HashSet<string>();
                 }
-                 @foreach (var user in item.Users)
+                 @foreach (var user in @item.Users)
                  {
                      if (user != null)
                         pms.Add(user.UserName);

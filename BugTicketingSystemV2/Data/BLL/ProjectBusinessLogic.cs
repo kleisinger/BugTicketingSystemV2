@@ -38,6 +38,7 @@ namespace BugTicketingSystemV2.Data.BLL
 
         public ICollection<Project> GetAllProjects()
         {
+            // error handel for if no pms?
             try
             {
                 return Repo.GetAll();
