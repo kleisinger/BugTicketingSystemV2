@@ -1,14 +1,18 @@
 ﻿@model IEnumerable<BugTicketingSystemV2.Models.Project>
 
-<h1>Projects</h1>
+<h1>All Projects</h1>
 
-<p>
-    <a asp-action="AddProject">Create New Project</a>
-</p>
+<div>
+    <a asp-controller="Projects" asp-action="AddProject" asp-route-id="">Create New Project</a> |
+    <a asp-controller="Projects" asp-action="CurrentProjects" asp-route-id="">Current Projects</a> 
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th>Title</th>
+            <th>Managers</th>
+            <th>Links</th>
             <th></th>
         </tr>
     </thead>
@@ -18,9 +22,29 @@
             <td>@item.Title</td>
 
             <td>
-                <a asp-action="EditProject" asp-route-id="@item.Id">Edit</a> |
+               @{
+                    HashSet<string> pms = new HashSet<string>();
+                }
+                 @foreach (var user in @item.Users)
+                 {
+                     if (user != null)
+                        pms.Add(user.UserName);
+                 }
+                 @foreach (var user in pms )
+                 {
+                     @user
+                     <br />
+                 }
+            </td>
+
+            <td>
                 <a asp-controller="Projects" asp-action="ProjectDetails" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="EditProject" asp-route-id="@item.Id">Edit</a> |
+                @if(item.Users != null)
+                {
+                <a asp-controller="Projects" asp-action="AssignProject" asp-route-id="@item.Id">Assign Project</a> 
+                }
+                @*<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
             </td>
         </tr>
 }
