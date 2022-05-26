@@ -152,7 +152,7 @@ namespace BugTicketingSystemV2.Controllers
         }
 
         // GET
-        // Still in progress
+        // Needs DAL / BLL Refactoring
         [Authorize(Roles = "Admin, Project Manager")]
         public async Task<IActionResult> AssignProject(int id)
         {
