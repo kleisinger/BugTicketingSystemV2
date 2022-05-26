@@ -34,14 +34,27 @@ namespace BugTicketingSystemV2.Controllers
             Task<bool> IsSubmitter = _userManager.IsInRoleAsync(user, "Submitter");
             Task<bool> IsDeveloperUser = _userManager.IsInRoleAsync(user, "Developer");
             Task<bool> IsProjectManager = _userManager.IsInRoleAsync(user, "Project Manager");
-            if (await IsSubmitter)
+
+            // placed this in a try-catch, so people not allowed in ticket controller won't see a crash message
+            // instead they'll be redirected Home.
+
+            try
             {
-                return View(ticketBll.SubmitterTickets(user.Id));
-            } else if(await IsDeveloperUser)
+                if (await IsSubmitter)
+                {
+                    return View(ticketBll.SubmitterTickets(user.Id));
+                }
+                else if (await IsDeveloperUser)
+                {
+                    return View(ticketBll.DeveloperAssignedTickets(user.Id));
+                }
+                return View(ticketBll.GetAll());
+
+            } catch(Exception ex)
             {
-                return View(ticketBll.DeveloperAssignedTickets(user.Id));
+
             }
-            return View(ticketBll.GetAll());
+            return Redirect("/Home");
         }
 
         public async Task<IActionResult> Details(int id)
