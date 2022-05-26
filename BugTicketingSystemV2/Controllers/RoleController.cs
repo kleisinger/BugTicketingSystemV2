@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using BugTicketingSystemV2.Models;
 using Microsoft.EntityFrameworkCore;
 
+//comment
 namespace BugTicketingSystemV2.Controllers
 {
     public class RoleController : Controller
