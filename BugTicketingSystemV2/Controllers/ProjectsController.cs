@@ -60,8 +60,9 @@ namespace BugTicketingSystemV2.Controllers
         {
             var CurrentUserName = User.Identity.Name;
             AppUser CurrentUser = await _userManager.FindByNameAsync(CurrentUserName);
+            var CurrentProjects = _projectBLL.GetCurrentProjects(CurrentUser);
 
-            return View(_projectBLL.GetCurrentProjects(CurrentUser));
+            return View(CurrentProjects);
         }
 
         // GET

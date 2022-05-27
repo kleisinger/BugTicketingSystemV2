@@ -129,9 +129,9 @@ using Microsoft.EntityFrameworkCore;
             // Create Projects
             List<Project> StarterProjects = new List<Project>()
                 {
-                    new Project { Title = "The First Project"},
-                    new Project { Title = "The Second Project" },
-                    new Project { Title = "The Third Project" },
+                    new Project { Title = "The First Project", Description="description one"},
+                    new Project { Title = "The Second Project", Description="description two" },
+                    new Project { Title = "The Third Project", Description="description three" },
                 };
 
             context.Projects.AddRange(StarterProjects);

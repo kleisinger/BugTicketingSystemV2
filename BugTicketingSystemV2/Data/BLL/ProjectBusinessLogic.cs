@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BugTicketingSystemV2.Data.DAL;
 using BugTicketingSystemV2.Models;
 using Microsoft.AspNetCore.Identity;
@@ -38,27 +39,15 @@ namespace BugTicketingSystemV2.Data.BLL
 
         public ICollection<Project> GetAllProjects()
         {
-            // error handel for if no pms?
-            try
-            {
-                return Repo.GetAll();
-            }
-            catch(Exception ex)
-            {
-                throw new Exception("No projects were found.");
-            }
+            var AllProjects = Repo.GetAll();
+
+            return AllProjects;
         }
 
         public ICollection<Project> GetCurrentProjects(AppUser user)
         {
-            try
-            {
-                return Repo.GetList(p => p.Users.Contains(user));
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("No projects were found.");
-            }
+            var AllProjects = Repo.GetList(p => p.Users.Contains(user));
+                return AllProjects;
         }
 
         public void CreateProject(string title, string description)
@@ -88,7 +77,10 @@ namespace BugTicketingSystemV2.Data.BLL
 
         }
 
+        public void AssignProject(int id)
+        {
 
+        }
 
     }
 }
