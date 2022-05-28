@@ -11,8 +11,8 @@
         @foreach(TicketAttachment ticketAttachment in Model) {
             <li>
                 <p>@ticketAttachment.Body</p>
-                <p>@ticketAttachment.FilePath?</p>
-                <p>@ticketAttachment.FileUrl?</p>
+                <a href="@ticketAttachment.FilePath">@ticketAttachment.FilePath</a>
+                <a href="@ticketAttachment.FileUrl">@ticketAttachment.FileUrl</a>
                 <p>@ticketAttachment.CreatedDate</p>
             </li>
         }
