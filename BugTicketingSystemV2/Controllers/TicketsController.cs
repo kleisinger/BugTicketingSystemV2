@@ -168,16 +168,24 @@ namespace BugTicketingSystemV2.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddTicketAttachment(string body, string filePath, string fileUrl, int ticketId)
+        public async Task<IActionResult> AddTicketAttachment(string body, string? filePath, string? fileUrl, int ticketId)
         {
             string name = User.Identity.Name;
             AppUser user = await _userManager.FindByEmailAsync(name);
             Ticket ticket = _context.Tickets.First(t => t.Id == ticketId);
+
+            if (filePath == null && fileUrl == null)
+            {
+                ViewData["ErrorMessage"] = "Must fill in either File Path or File URL atleast.";
+                return View(ticket);
+            }
+
             TicketAttachment ticketAttachment = new TicketAttachment(body, filePath, fileUrl,ticket, user);
             _context.TicketAttachments.Add(ticketAttachment);
             _context.SaveChanges();
 
-            return View();
+            ViewData["ErrorMessage"] = "Attachment successful";
+            return View(ticket);
         }
     }
 }
