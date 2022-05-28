@@ -49,9 +49,19 @@ namespace BugTicketingSystemV2.Controllers
                 {
                     return View(ticketBll.GetAll().Where(s => s.Project.Users.Contains(user)));
                 }
-                return View(ticketBll.GetAll().Where(s => s.ticketStatus != TicketStatus.Resolved));
+                return View(ticketBll.GetAll());
             }
             return View(ticketBll.GetAll());
+        }
+
+        [Authorize(Roles = "Project Manager")]
+        public async Task<IActionResult> ViewAll(int? id)
+        {
+            if(id != null)
+            {
+
+            }
+            return RedirectToAction("Index",ticketBll.GetAll());
         }
 
         public async Task<IActionResult> Details(int id)
@@ -128,6 +138,40 @@ namespace BugTicketingSystemV2.Controllers
         {
             ticketBll.MarkTicketAsResolved(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> AddComment(int id)
+        {
+            Ticket ticket = ticketBll.Get(id);
+            if(ticket != null)
+            {
+                ViewBag.TicketTitle = ticket.Title;
+            }
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(int id, string Body, DateTime createdDate)
+        {
+            string mail = User.Identity.Name;
+            AppUser user = await _userManager.FindByNameAsync(mail);
+            ticketBll.AddComment(id, Body, createdDate, user);
+            //return RedirectToAction("Details", new { id = id });
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> ViewComments(int id)
+        {
+            string mail = User.Identity.Name;
+            AppUser user = await _userManager.FindByNameAsync(mail);
+            Ticket ticket = _context.Tickets.Include(t => t.TicketComments).First(i => i.Id == id);
+            ViewBag.SUsers = _context.Users.ToList();
+            if(ticket.TicketComments.Count() == 0)
+            {
+                return RedirectToAction("Details", ticket.Id);
+            }
+            return View(ticket);
         }
 
         [Authorize(Roles ="Project Manager")]
