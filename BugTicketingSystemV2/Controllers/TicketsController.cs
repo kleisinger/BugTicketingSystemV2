@@ -148,5 +148,36 @@ namespace BugTicketingSystemV2.Controllers
         {
           return (_context.Tickets?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+
+        [HttpGet] 
+
+        public IActionResult ViewTicketAttachments(int ticketId)
+        {
+            List<TicketAttachment> ticketAttachments = _context.TicketAttachments.Where(ta => ta.TicketId == ticketId).ToList();
+            if (ticketAttachments.Count > 0)
+                return View(ticketAttachments);
+
+            return RedirectToAction($"Details/{ticketId}");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AddTicketAttachment(int ticketId)
+        {
+            Ticket ticket = _context.Tickets.First(t => t.Id == ticketId);
+            return View(ticket);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddTicketAttachment(string body, string filePath, string fileUrl, int ticketId)
+        {
+            string name = User.Identity.Name;
+            AppUser user = await _userManager.FindByEmailAsync(name);
+            Ticket ticket = _context.Tickets.First(t => t.Id == ticketId);
+            TicketAttachment ticketAttachment = new TicketAttachment(body, filePath, fileUrl,ticket, user);
+            _context.TicketAttachments.Add(ticketAttachment);
+            _context.SaveChanges();
+
+            return View();
+        }
     }
 }

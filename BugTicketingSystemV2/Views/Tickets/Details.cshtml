@@ -69,5 +69,7 @@
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="MarkAsResolved" asp-route-id="@Model?.Id">Mark as Resolved</a> |
+    <a asp-action="AddTicketAttachment" asp-route-ticketId="@Model?.Id">Add Attachment</a>
+    <a asp-action="ViewTicketAttachments" asp-route-ticketId="@Model?.Id">View Attachments</a>
     <a asp-action="Index">Back to List</a>
 </div>
