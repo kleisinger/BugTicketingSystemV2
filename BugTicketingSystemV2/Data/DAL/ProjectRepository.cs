@@ -23,7 +23,7 @@ namespace BugTicketingSystemV2.Data.DAL
         
         // CRUD
         // CREATE
-        public void CreateProject(Project project)
+        public virtual void CreateProject(Project project)
         {
             _db.Projects.Add(project);
         }
@@ -37,7 +37,7 @@ namespace BugTicketingSystemV2.Data.DAL
             return Projects.First(p => p.Id == id);
         }
 
-        public Project Get(Func<Project, bool> firstFunction)
+        public virtual Project Get(Func<Project, bool> firstFunction)
         {
             var Projects = _db.Projects.Include(p => p.Users)
                                        .Include(p => p.Tickets).ThenInclude(t => t.User);
@@ -47,13 +47,11 @@ namespace BugTicketingSystemV2.Data.DAL
 
         public virtual ICollection<Project> GetAll()
         {
-            var Projects = _db.Projects.Include(p => p.Users)
-                                       .Include(p => p.Tickets).ThenInclude(t => t.User);
-
+            var Projects = _db.Projects.Include(p => p.Users).Include(p => p.Tickets).ThenInclude(t => t.User);
             return Projects.ToList();
         }
 
-        public ICollection<Project> GetList(Func<Project, bool> whereFunction)
+        public virtual ICollection<Project> GetList(Func<Project, bool> whereFunction)
         {
             var Projects = _db.Projects.Include(p => p.Users)
                                        .Include(p => p.Tickets).ThenInclude(t => t.User);
@@ -62,19 +60,19 @@ namespace BugTicketingSystemV2.Data.DAL
         }
 
         // UPDATE
-        public void Update(Project project)
+        public virtual void Update(Project project)
         {
             _db.Projects.Update(project);
         }
 
         // DELETE
-        public void Remove(Project project)
+        public virtual void Remove(Project project)
         {
             _db.Projects.Remove(project);
         }
 
         // SAVE
-        public void Save()
+        public virtual void Save()
         {
             _db.SaveChanges();
         }

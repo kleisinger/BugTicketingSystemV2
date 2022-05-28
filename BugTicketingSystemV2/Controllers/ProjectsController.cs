@@ -43,17 +43,48 @@ namespace BugTicketingSystemV2.Controllers
         }
 
 
+        [Authorize(Roles = "Admin, Project Manager")]
+        public IActionResult AllProjects(int? SelectedPage, int? SelectedProjectsPerPage)
+        {
+            List<Project> AllProjectsList = _projectBLL.GetAllProjects().OrderByDescending(p => p.Id).ToList();
+
+            int Page = 0;
+            int ProjectsPerPage = 5;
+            int ProjectsCount = AllProjectsList.Count();
+            
+            if (SelectedPage != null)
+                Page = (int)SelectedPage;
+
+            if (SelectedProjectsPerPage != null)
+                ProjectsPerPage = (int)SelectedProjectsPerPage;
+
+            ViewData["SelectedPage"] = Page;
+            ViewData["SelectedProjectsPerPage"] = ProjectsPerPage;
+            ViewData["ProjectsCount"] = ProjectsCount;
+
+            int PagesCount = ProjectsCount / ProjectsPerPage;
+            ViewData["PagesCount"] = PagesCount;
+            int PageStart = ProjectsPerPage * Page;
+
+            List<Project> ProjectsToShow = new List<Project>();
+            for (int i = PageStart; i < PageStart + ProjectsPerPage && i < ProjectsCount; i++)
+            {
+                ProjectsToShow.Add(AllProjectsList[i]);
+            }
+
+            return View(ProjectsToShow);
+        }
 
         // GET
-        [Authorize(Roles = "Admin, Project Manager")]
-        public async Task<IActionResult> AllProjects()
-        {
-            var CurrentUserName = User.Identity.Name;
-            ViewBag.CurrentUser = await _userManager.FindByNameAsync(CurrentUserName);
-            ViewBag.CurrentRole = await _userManager.GetRolesAsync(ViewBag.CurrentUser);
+        
+        //public async Task<IActionResult> AllProjects()
+        //{
+        //    var CurrentUserName = User.Identity.Name;
+        //    ViewBag.CurrentUser = await _userManager.FindByNameAsync(CurrentUserName);
+        //    ViewBag.CurrentRole = await _userManager.GetRolesAsync(ViewBag.CurrentUser);
 
-            return View(_projectBLL.GetAllProjects());
-        }
+        //    return View(_projectBLL.GetAllProjects());
+        //}
 
         // GET
         public async Task<IActionResult> CurrentProjects(int id)
@@ -155,7 +186,7 @@ namespace BugTicketingSystemV2.Controllers
         }
 
         // GET
-        // Still in progress
+        // Needs DAL / BLL Refactoring
         [Authorize(Roles = "Admin, Project Manager")]
         public async Task<IActionResult> AssignProject(int id)
         {

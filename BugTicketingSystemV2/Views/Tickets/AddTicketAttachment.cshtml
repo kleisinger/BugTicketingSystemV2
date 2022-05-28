@@ -1,0 +1,23 @@
+﻿@using BugTicketingSystemV2.Models
+
+@model Ticket
+
+<form method="post" action="AddTicketAttachment">
+    <label for="body">body</label>
+    <input type="text" id="body" name="body">
+
+    <label for="filePath">File Path</label>
+    <input type="text" id="filePath" name="filePath">
+
+    <label for="fileUrl">File URL</label>
+    <input type="text" id="fileUrl" name="fileUrl">
+    
+    <input type="hidden" id="ticketId" name="ticketId" value=@Model?.Id>
+    
+    <input type="submit">
+</form>
+
+<a asp-action="Details" asp-route-id="@Model.Id">Details</a>
+
+
+<h1>@ViewData["ErrorMessage"]</h1>
