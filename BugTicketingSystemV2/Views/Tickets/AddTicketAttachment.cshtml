@@ -12,9 +12,9 @@
     <label for="fileUrl">File URL</label>
     <input type="text" id="fileUrl" name="fileUrl">
     
-    <input type="hidden" id="ticketId" name="ticketId" value=@Model.Id>
+    <input type="hidden" id="ticketId" name="ticketId" value=@Model?.Id>
     
     <input type="submit">
 </form>
 
-<a asp-action="Details" asp-route-id="@Model?.Id">Details</a>
+<a asp-action="Details" asp-route-id="@Model.Id">Details</a>
