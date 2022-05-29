@@ -80,8 +80,7 @@ namespace BugTicketingSystemV2.Data.BLL
 				ticket.ticketStatus = ticketStatus;
 				ticket.ticketType = ticketType;
 				ticket.ticketPriority = ticketPriority;
-				IRepo.Update(ticket);
-				IRepo.Save();
+
 				repo.Update(ticket);
 				repo.Save();
 			}

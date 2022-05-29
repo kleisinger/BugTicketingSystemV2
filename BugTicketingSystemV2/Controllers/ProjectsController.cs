@@ -42,7 +42,7 @@ namespace BugTicketingSystemV2.Controllers
             return View();
         }
 
-
+        // GET
         [Authorize(Roles = "Admin, Project Manager")]
         public IActionResult AllProjects(int? SelectedPage, int? SelectedProjectsPerPage)
         {

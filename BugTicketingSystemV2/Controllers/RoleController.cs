@@ -125,5 +125,3 @@ namespace BugTicketingSystemV2.Controllers
         }
     }
 }
-
-//KLEIS IS TESTING
