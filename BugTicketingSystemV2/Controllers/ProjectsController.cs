@@ -91,8 +91,9 @@ namespace BugTicketingSystemV2.Controllers
         {
             var CurrentUserName = User.Identity.Name;
             AppUser CurrentUser = await _userManager.FindByNameAsync(CurrentUserName);
+            var CurrentProjects = _projectBLL.GetCurrentProjects(CurrentUser);
 
-            return View(_projectBLL.GetCurrentProjects(CurrentUser));
+            return View(CurrentProjects);
         }
 
         // GET
@@ -170,17 +171,15 @@ namespace BugTicketingSystemV2.Controllers
             return View();
         }
 
+
+        // needs .include project on GET in TICKET REPO
         [HttpPost]
         public async Task<IActionResult> AssignTicket(string devId, int ticketId)
         {
             Ticket Ticket = _ticketBLL.Get(ticketId);
-            AppUser Dev = await _userManager.FindByIdAsync(devId);
             var ProjectId = Ticket.Project.Id;
 
-            Ticket.UserId = devId;
-            Ticket.User = Dev;
-            Ticket.ticketStatus = TicketStatus.Assigned;
-            _context.SaveChanges();
+            _projectBLL.AssignTicket(devId, Ticket);
 
             return RedirectToAction("ProjectDetails", new { id = ProjectId });
         }

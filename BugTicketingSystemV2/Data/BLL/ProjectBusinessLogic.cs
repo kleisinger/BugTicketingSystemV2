@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BugTicketingSystemV2.Data.DAL;
 using BugTicketingSystemV2.Models;
 using Microsoft.AspNetCore.Identity;
@@ -7,12 +8,22 @@ namespace BugTicketingSystemV2.Data.BLL
 {
     public class ProjectBusinessLogic
     {
-        public ProjectRepository Repo { get; set; }
+        public ProjectRepository ProjectRepo { get; set; }
+        public TicketRepository TicketRepo { get; set; }
+        public TicketBusinessLogic TicketBLL { get; set; }
+        public UserManager<AppUser> _userManager;
 
         // CONSTRUCTORS
         public ProjectBusinessLogic(ProjectRepository repo)
         {
-            Repo = repo;
+            ProjectRepo = repo;
+        }
+
+        public ProjectBusinessLogic(ProjectRepository repo, UserManager<AppUser> userManager)
+
+        {
+            ProjectRepo = repo;
+            _userManager = userManager;
         }
 
         public ProjectBusinessLogic()
@@ -24,9 +35,9 @@ namespace BugTicketingSystemV2.Data.BLL
         {
             try
             {
-                Project project = Repo.Get(id);
+                Project project = ProjectRepo.Get(id);
                 if(project != null)
-                    return Repo.Get(id);
+                    return ProjectRepo.Get(id);
                 else
                     throw new Exception("Project was not found.");
             }
@@ -38,27 +49,15 @@ namespace BugTicketingSystemV2.Data.BLL
 
         public ICollection<Project> GetAllProjects()
         {
-            // error handel for if no pms?
-            try
-            {
-                return Repo.GetAll();
-            }
-            catch(Exception ex)
-            {
-                throw new Exception("No projects were found.");
-            }
+            var AllProjects = ProjectRepo.GetAll();
+
+            return AllProjects;
         }
 
         public ICollection<Project> GetCurrentProjects(AppUser user)
         {
-            try
-            {
-                return Repo.GetList(p => p.Users.Contains(user));
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("No projects were found.");
-            }
+            var AllProjects = ProjectRepo.GetList(p => p.Users.Contains(user));
+            return AllProjects;
         }
 
         public void CreateProject(string title, string description)
@@ -69,26 +68,50 @@ namespace BugTicketingSystemV2.Data.BLL
                 Description = description
             };
 
-            Repo.CreateProject(newProject);
-            Repo.Save();
+            ProjectRepo.CreateProject(newProject);
+            ProjectRepo.Save();
         }
 
         public void EditProject(int id, string title, string description)
         {
-            var ProjectToEdit = Repo.Get(id);
+            var ProjectToEdit = ProjectRepo.Get(id);
             ProjectToEdit.Title = title;
             ProjectToEdit.Description = description;
 
-            Repo.Update(ProjectToEdit);
-            Repo.Save();
+            ProjectRepo.Update(ProjectToEdit);
+            ProjectRepo.Save();
         }
 
-        public void AssignTicket(int id)
+        public async void AssignTicket(string devId, Ticket Ticket)
+        {
+            if (Ticket != null && devId != null)
+            {
+                try
+                {
+                    Ticket.UserId = devId;
+                    Ticket.ticketStatus = TicketStatus.Assigned;
+
+                    ProjectRepo.Save();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("The Developer could not be assigned.");
+                }
+            }
+            else if(Ticket == null)
+            {
+                throw new Exception("The Ticket could not be found.");
+            }
+            else if(devId == null)
+            {
+                throw new Exception("The Developer you chose could not be found.");
+            }
+        }
+
+        public void AssignProject(int id)
         {
 
         }
-
-
 
     }
 }
