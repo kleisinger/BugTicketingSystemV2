@@ -69,7 +69,7 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticketBll.Get(id));
         }
 
-        [Authorize(Roles = "Submitter")]
+        [Authorize(Roles = "Submitter, Admin")]
         public IActionResult Create(int? Pid)
         {
 
@@ -102,7 +102,7 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticket);
         }
 
-        [Authorize(Roles="Developer")]
+        [Authorize(Roles="Developer, Project Manager")]
         public async Task<IActionResult> Edit(int id)
         {
             var ticket = await _context.Tickets.FindAsync(id);

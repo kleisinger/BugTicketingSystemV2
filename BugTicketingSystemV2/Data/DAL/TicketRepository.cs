@@ -23,8 +23,9 @@ namespace BugTicketingSystemV2.Data
 		public Ticket Get(int id)
 		{
 			Ticket ticket = context.Tickets
-				.Include(t => t.Submitter)
-				.Include(t => t.User).Include(p => p.Project).First(a => a.Id == id);
+				//.Include(t => t.Submitter)
+				.Include(t => t.User)
+				.Include(p => p.Project).First(a => a.Id == id);
 			return ticket;
 		}
 
