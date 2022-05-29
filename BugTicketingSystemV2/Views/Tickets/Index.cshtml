@@ -1,0 +1,113 @@
+﻿@model IEnumerable<BugTicketingSystemV2.Models.Ticket>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary" style="float: left; margin-top: -5px;">Create New</a>
+    @if (ViewBag.user == "Project Manager")
+    {
+    }
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                Created
+            </th>
+            <th>
+                Project
+            </th>
+            <th>
+                Status
+            </th>
+            <th>
+                Type
+            </th>
+            <th>
+                Priority
+            </th>
+            <th>
+                Submitter
+            </th>
+            <th>
+                Handler
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Project.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ticketStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ticketType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ticketPriority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Submitter.UserName)
+                @*@foreach (var user in @ViewBag.SUsers)
+                {
+                    if (item.SubmitterId == user.Id)
+                    {
+                        @user.UserName
+
+                    }
+                }*@
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.UserName)
+            </td>
+            <td>
+                @{
+                    List<SelectListItem> listItems = new List<SelectListItem>();
+                    listItems.Add(new SelectListItem
+                    {
+                        Text = "Edit",
+                        Value = "@item.Id"
+                    });
+                    listItems.Add(new SelectListItem
+                    {
+                        Text = "Exemplo2",
+                        Value = "",
+                        Selected = true
+                    });
+                    listItems.Add(new SelectListItem
+                    {
+                        Text = "Exemplo3",
+                        Value = "Exemplo3"
+                    });
+                }
+                <a asp-action="Edit" asp-route-id="@item.Id" style=text-decoration: none">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id" style="text-decoration: none">Details</a>
+                @*<a asp-action="Delete" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Resolved</a>*@
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,82 @@
+﻿@model BugTicketingSystemV2.Models.Project
+
+<h1>@Model.Title</h1>
+<div>
+    <a asp-controller="Projects" asp-action="AllProjects">Back to All Projects</a> |
+    @if (@ViewBag.CurrentRole.Contains("Submitter"))
+    {
+        <a asp-controller="Tickets" asp-action="Create" asp-route-projectId="@Model.Id">Create New Ticket</a>
+    }
+</div>
+
+
+<div>
+    <hr/>
+    <dl class="row">
+        <dt class = "col-sm-2">Description:</dt>
+            <dd class = "col-sm-10">@Model.Description</dd>
+
+        <dt class = "col-sm-2">Managers:</dt>
+        <dd class = "col-sm-10">
+            @foreach(var user in @Model.Users)
+            {
+                @user.UserName; 
+                <br />
+            }
+            </dd>
+    </dl>
+</div>
+
+<h4>Tickets</h4>
+@*<a asp-action="ProjectDetails" class="btn btn-primary" style="float: left; margin-top: -5px;" asp-route-AllId="@Model.Id">View Resolved Tickets</a>*@
+@if (@ViewBag.CurrentRole.Contains("Developer") || @ViewBag.CurrentRole.Contains("Submitter"))
+{
+    <a asp-controller="Tickets" asp-action="Create" asp-route-Pid="@Model.Id">Create new Ticket</a>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Type</th>
+            <th>Priority</th>
+            <th>Developer</th>
+            <th>Links</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var ticket in @Model.Tickets) {
+        <tr>
+            <td>@ticket.Title</td>
+            <td>@ticket.ticketStatus</td>
+            <td>@ticket.ticketType</td>
+            <td>@ticket.ticketPriority</td>
+            <td>@ticket.User</td>
+
+            <td>
+                <a asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.Id">Details</a>
+            </td>
+
+            <td>
+                @if (@ViewBag.CurrentRole.Contains("Admin") || @ViewBag.CurrentRole.Contains("Project Manager") )
+                {
+                    <a asp-controller="Tickets" asp-action="Edit" asp-route-id="@ticket.Id">Update Ticket</a>
+                }
+            </td>
+
+            <td>
+                @if(ticket.User == null)
+                {
+                    <a asp-controller="Projects" asp-action="AssignTicket" asp-route-id="@ticket.Id">Assign Ticket</a>
+                }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+
