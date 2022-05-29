@@ -17,42 +17,101 @@ namespace BugTicketingSystem_UnitTesting
     {
         private ProjectBusinessLogic _projectBLL;
         private ICollection<Project> allProjects;
-        private ICollection<Project> adminProjects;
+        private ICollection<Ticket> allTickets;
+        private ICollection<Project> pmProjects;
 
 
         [TestInitialize]
         public void Initialize()
         {
-            // Create Mock Repo (based on DAL)
+            // Creating MOCK Repo (based on DAL)
             Mock<ProjectRepository> mockRepo = new Mock<ProjectRepository>();
 
-            // Create Mock Projects - adding a Users List
+            // Creating MOCK Users
+            AppUser mockAdmin = new AppUser
+            {
+                Email = "mockAdmin@mitt.ca",
+                NormalizedEmail = "MOCKADMIN@MITT.CA",
+                UserName = "mockAdmin@mitt.ca",
+                NormalizedUserName = "MOCKADMIN@MITT.CA",
+                EmailConfirmed = true
+            };
+            AppUser mockPM = new AppUser
+            {
+                Email = "mockPM@mitt.ca",
+                NormalizedEmail = "MOCKPM@MITT.CA",
+                UserName = "mockPM@mitt.ca",
+                NormalizedUserName = "MOCKPM@MITT.CA",
+                EmailConfirmed = true
+            };
+            AppUser mockDev = new AppUser
+            {
+                Email = "mockDev@mitt.ca",
+                NormalizedEmail = "MOCKDEV@MITT.CA",
+                UserName = "mockDev@mitt.ca",
+                NormalizedUserName = "MOCKDEV@MITT.CA",
+                EmailConfirmed = true
+            };
+            AppUser mockSubmitter = new AppUser
+            {
+                Email = "mockSubmitter@mitt.ca",
+                NormalizedEmail = "MOCKSUBMITTER@MITT.CA",
+                UserName = "mockSubmitter@mitt.ca",
+                NormalizedUserName = "MOCKSUBMITTER@MITT.CA",
+                EmailConfirmed = true
+            };
+
+            // Creating MOCK Projects - adding a Users List
             Project mockProject1 = new Project { Id = 1, Title = "The First Project", Description = "Description One", Users = new List<AppUser>() };
             Project mockProject2 = new Project { Id = 2, Title = "The Second Project", Description = "Description Two", Users = new List<AppUser>() };
             Project mockProject3 = new Project { Id = 3, Title = "The Third Project", Description = "Description Three", Users = new List<AppUser>() };
 
             allProjects = new List<Project> { mockProject1, mockProject2, mockProject3 };
 
-            // Create User
-            var passwordHasher = new PasswordHasher<AppUser>();
-            AppUser mockAdmin = new AppUser
+            // Adding PMs to Projects
+            mockProject1.Users.Add(mockPM);
+            mockProject2.Users.Add(mockPM);
+            pmProjects = new List<Project> { mockProject1, mockProject2, mockProject3 };
+
+            // Creating MOCK Tickets
+            Ticket mockTicket1 = new Ticket
             {
-                Email = "admin@mitt.ca",
-                NormalizedEmail = "ADMIN@MITT.CA",
-                UserName = "admin@mitt.ca",
-                NormalizedUserName = "ADMIN@MITT.CA",
-                EmailConfirmed = true
+                Title = "Ticket One",
+                Description = "Description for ticket one.",
+                CreatedDate = new DateTime(2022, 05, 01),
+                ticketStatus = TicketStatus.Assigned,
+                ticketType = TicketType.ServiceRequest,
+                ticketPriority = TicketPriority.Medium,
+                Project = mockProject1,
+                SubmitterId = mockSubmitter.Id,
+                UserId = mockDev.Id,
             };
-            var hashedPassword = passwordHasher.HashPassword(mockAdmin, "Password!1");
-            mockAdmin.PasswordHash = hashedPassword;
+            Ticket mockTicket2 = new Ticket
+            {
+                Title = "Ticket Two",
+                Description = "Description for ticket two.",
+                CreatedDate = new DateTime(2022, 05, 01),
+                ticketStatus = TicketStatus.Assigned,
+                ticketType = TicketType.ServiceRequest,
+                ticketPriority = TicketPriority.Medium,
+                Project = mockProject1,
+                SubmitterId = mockSubmitter.Id,
+                UserId = mockDev.Id,
+            };
+            Ticket mockTicket3 = new Ticket
+            {
+                Title = "Ticket Three",
+                Description = "Description for ticket three.",
+                CreatedDate = new DateTime(2022, 05, 01),
+                ticketStatus = TicketStatus.Assigned,
+                ticketType = TicketType.ServiceRequest,
+                ticketPriority = TicketPriority.Medium,
+                Project = mockProject2,
+                SubmitterId = mockSubmitter.Id,
+                UserId = mockDev.Id,
+            };
 
-            // Adding User to Projects
-            mockProject1.Users.Add(mockAdmin);
-            mockProject2.Users.Add(mockAdmin);
-            adminProjects.Add(mockProject1);
-            adminProjects.Add(mockProject2);
-
-
+            allTickets = new List<Ticket> { mockTicket1, mockTicket2, mockTicket3 };
 
             // Calling "Get" method from DAL
             // We are creating fake responses for our fake DB
@@ -61,10 +120,8 @@ namespace BugTicketingSystem_UnitTesting
             mockRepo.Setup(repo => repo.Get(It.Is<int>(i => i == 1))).Returns(mockProject1);
             mockRepo.Setup(repo => repo.Get(It.Is<int>(i => i == 2))).Returns(mockProject2);
             mockRepo.Setup(repo => repo.Get(It.Is<int>(i => i == 3))).Returns(mockProject3);
-
             mockRepo.Setup(repo => repo.GetAll()).Returns(allProjects);
-            
-            mockRepo.Setup(repo => repo.GetList(It.IsAny<Func<Project, bool>>())).Returns(adminProjects);
+            mockRepo.Setup(repo => repo.GetList(It.IsAny<Func<Project, bool>>())).Returns(pmProjects);
 
             _projectBLL = new ProjectBusinessLogic(mockRepo.Object);
         }

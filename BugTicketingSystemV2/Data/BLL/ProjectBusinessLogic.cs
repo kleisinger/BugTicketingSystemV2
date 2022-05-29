@@ -11,7 +11,7 @@ namespace BugTicketingSystemV2.Data.BLL
         public ProjectRepository ProjectRepo { get; set; }
         public TicketRepository TicketRepo { get; set; }
         public TicketBusinessLogic TicketBLL { get; set; }
-        public UserManager<AppUser> _userManager;
+        public UserManager<AppUser> _userManager { get; set; }
 
         // CONSTRUCTORS
         public ProjectBusinessLogic(ProjectRepository repo)
@@ -31,6 +31,8 @@ namespace BugTicketingSystemV2.Data.BLL
             
         }
 
+
+        // GET LOGIC
         public Project GetProjectById(int id)
         {
             try
@@ -60,29 +62,65 @@ namespace BugTicketingSystemV2.Data.BLL
             return AllProjects;
         }
 
+
+        // POST LOGIC
         public void CreateProject(string title, string description)
         {
-            Project newProject = new Project()
+            if (title != null && description != null)
             {
-                Title = title,
-                Description = description
-            };
+                try
+                {
+                    Project newProject = new Project()
+                    {
+                        Title = title,
+                        Description = description
+                    };
 
-            ProjectRepo.CreateProject(newProject);
-            ProjectRepo.Save();
+                    ProjectRepo.CreateProject(newProject);
+                    ProjectRepo.Save();
+                }
+                catch
+                {
+                    throw new Exception("The project could not be created");
+                }
+            }
+            else if (title == null || description == null)
+            {
+                throw new Exception("Title and Description must be filled out.");
+            }
+   
         }
 
         public void EditProject(int id, string title, string description)
         {
-            var ProjectToEdit = ProjectRepo.Get(id);
-            ProjectToEdit.Title = title;
-            ProjectToEdit.Description = description;
+            if (id != null && title != null && description != null)
+            {
+                try
+                {
+                    var ProjectToEdit = ProjectRepo.Get(id);
+                    ProjectToEdit.Title = title;
+                    ProjectToEdit.Description = description;
 
-            ProjectRepo.Update(ProjectToEdit);
-            ProjectRepo.Save();
+                    ProjectRepo.Update(ProjectToEdit);
+                    ProjectRepo.Save();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("The project could not be updated.");
+                }
+            } 
+            else if (id == null)
+            {
+                throw new Exception("Project was not found.");
+            }
+            else if (title == null || description == null)
+            {
+                throw new Exception("Title and Description must be filled out.");
+            }
+
         }
 
-        public async void AssignTicket(string devId, Ticket Ticket)
+        public void AssignTicket(string devId, Ticket Ticket)
         {
             if (Ticket != null && devId != null)
             {
@@ -108,9 +146,31 @@ namespace BugTicketingSystemV2.Data.BLL
             }
         }
 
-        public void AssignProject(int id)
+        public void AssignProject(AppUser pm, int projectId)
         {
+            if (projectId != null && pm != null)
+            {
+                try
+                {
+                    Project project = GetProjectById(projectId);
 
+                    project.Users.Add(pm);
+                    ProjectRepo.Save();
+                }
+                catch
+                {
+                    throw new Exception("The Manager could not be assgined.");
+                }
+            }
+            else if (pm == null)
+            {
+                throw new Exception("The user was not found.");
+            }
+            else if (projectId == null)
+            {
+                throw new Exception("The project was not found.");
+            }
+   
         }
 
     }

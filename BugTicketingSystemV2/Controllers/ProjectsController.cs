@@ -75,16 +75,6 @@ namespace BugTicketingSystemV2.Controllers
             return View(ProjectsToShow);
         }
 
-        // GET
-        
-        //public async Task<IActionResult> AllProjects()
-        //{
-        //    var CurrentUserName = User.Identity.Name;
-        //    ViewBag.CurrentUser = await _userManager.FindByNameAsync(CurrentUserName);
-        //    ViewBag.CurrentRole = await _userManager.GetRolesAsync(ViewBag.CurrentUser);
-
-        //    return View(_projectBLL.GetAllProjects());
-        //}
 
         // GET
         public async Task<IActionResult> CurrentProjects(int id)
@@ -120,7 +110,7 @@ namespace BugTicketingSystemV2.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddProject(string title, string description)
+        public IActionResult AddProject(string title, string description)
         {
             _projectBLL.CreateProject(title, description);
 
@@ -140,7 +130,7 @@ namespace BugTicketingSystemV2.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditProject(int id, string title, string description)
+        public IActionResult EditProject(int id, string title, string description)
         {
             _projectBLL.EditProject(id, title, description);
 
@@ -150,8 +140,6 @@ namespace BugTicketingSystemV2.Controllers
 
 
         // GET
-        // Still in progress
-        // Submitter in the GET in the TICKET DAL is preventing this from working rn
         [Authorize(Roles = "Admin, Project Manager")]
         public async Task<IActionResult> AssignTicket(int id)
         {
@@ -171,10 +159,8 @@ namespace BugTicketingSystemV2.Controllers
             return View();
         }
 
-
-        // needs .include project on GET in TICKET REPO
         [HttpPost]
-        public async Task<IActionResult> AssignTicket(string devId, int ticketId)
+        public IActionResult AssignTicket(string devId, int ticketId)
         {
             Ticket Ticket = _ticketBLL.Get(ticketId);
             var ProjectId = Ticket.Project.Id;
@@ -184,8 +170,9 @@ namespace BugTicketingSystemV2.Controllers
             return RedirectToAction("ProjectDetails", new { id = ProjectId });
         }
 
+
+
         // GET
-        // Needs DAL / BLL Refactoring
         [Authorize(Roles = "Admin, Project Manager")]
         public async Task<IActionResult> AssignProject(int id)
         {
@@ -208,16 +195,12 @@ namespace BugTicketingSystemV2.Controllers
         [HttpPost]
         public async Task<IActionResult> AssignProject(string pmId, int projectId)
         {
-            Project project = _projectBLL.GetProjectById(projectId);
-            AppUser PM = await _userManager.FindByIdAsync(pmId);
+            AppUser pm = await _userManager.FindByIdAsync(pmId);
 
-            project.Users.Add(PM);
-            _context.SaveChanges();
+            _projectBLL.AssignProject(pm, projectId);
 
             return RedirectToAction("ProjectDetails", new { id = projectId });
         }
-
-
 
     }
 }
