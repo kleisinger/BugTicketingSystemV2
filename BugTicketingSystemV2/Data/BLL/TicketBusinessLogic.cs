@@ -8,19 +8,18 @@ namespace BugTicketingSystemV2.Data.BLL
 	public class TicketBusinessLogic
 	{
 		public TicketRepository repo;
-        private IRepository<Ticket> IRepo;
 
         public TicketBusinessLogic(TicketRepository repository)
 			{
 				repo = repository;
 			}
 
-        public TicketBusinessLogic(IRepository<Ticket> irepo)
+		public TicketBusinessLogic()
         {
-            IRepo = irepo;
+			
         }
 
-        public List<Ticket> GetAll()
+		public List<Ticket> GetAll()
 			{
 				return repo.GetAll().ToList();
 			}
@@ -33,6 +32,10 @@ namespace BugTicketingSystemV2.Data.BLL
 		public TicketComment AddComment(int id, string comment, DateTime createdDate, AppUser user)
         {
 			Ticket ticket = repo.Get(id);
+			if(ticket == null || id == null || comment == null || comment == string.Empty)
+            {
+				throw new Exception("Please input correct values");
+			}
 			TicketComment NewComment = new TicketComment
 			{
 				Body = comment,
@@ -42,6 +45,7 @@ namespace BugTicketingSystemV2.Data.BLL
 				User = user,
 				UserId = user.Id
 			};
+			ticket.TicketComments.Add(NewComment);
 			repo.Save();
 			return NewComment;
 		}
@@ -119,6 +123,11 @@ namespace BugTicketingSystemV2.Data.BLL
 			repo.Remove(repo.Get(id));
 			repo.Save();
         }
-	}
+
+        public void AddComment(int v1, string v2, string v3, AppUser dev1)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 

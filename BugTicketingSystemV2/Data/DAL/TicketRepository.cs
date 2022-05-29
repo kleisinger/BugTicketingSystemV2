@@ -14,13 +14,18 @@ namespace BugTicketingSystemV2.Data
 			context = db;
 		}
 
+		public TicketRepository()
+        {
+
+        }
+
 		public void Add(Ticket ticket)
 		{
 			context.Tickets.Add(ticket);
 		}
 
 		// read
-		public Ticket Get(int id)
+		public virtual Ticket Get(int id)
 		{
 			Ticket ticket = context.Tickets
 				//.Include(t => t.Submitter)
@@ -29,12 +34,12 @@ namespace BugTicketingSystemV2.Data
 			return ticket;
 		}
 
-		public Ticket Get(Func<Ticket, bool> firstFunction)
+		public virtual Ticket Get(Func<Ticket, bool> firstFunction)
 		{
 			return context.Tickets.First(firstFunction);
 		}
 
-		public ICollection<Ticket> GetAll()
+		public virtual ICollection<Ticket> GetAll()
 		{
 			var allTickets = context.Tickets
 				.Include(t => t.Submitter)
@@ -63,24 +68,24 @@ namespace BugTicketingSystemV2.Data
 		}
 
 
-		public ICollection<Ticket> GetList(Func<Ticket, bool> whereFunction)
+		public virtual ICollection<Ticket> GetList(Func<Ticket, bool> whereFunction)
 		{
 			return context.Tickets.Where(whereFunction).ToList();
 		}
 
 
-		public void Update(Ticket ticket)
+		public virtual void Update(Ticket ticket)
 		{
 			context.Tickets.Update(ticket);
 		}
 
-		public void Remove(Ticket ticket)
+		public virtual void Remove(Ticket ticket)
 		{
 			
 			context.Tickets.Remove(ticket);
 		}
 
-		public void Save()
+		public virtual void Save()
 		{
 			context.SaveChanges();
 		}

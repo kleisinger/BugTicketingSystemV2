@@ -34,34 +34,25 @@ namespace BugTicketingSystemV2.Controllers
             bool IsSubmitter = await _userManager.IsInRoleAsync(user, "Submitter");
             bool IsDeveloperUser = await _userManager.IsInRoleAsync(user, "Developer");
             bool IsProjectManager = await _userManager.IsInRoleAsync(user, "Project Manager");
-            if (IsSubmitter)
-            {
-                ViewBag.user = "Submitter";
-                return View(ticketBll.SubmitterTickets(user.Id));
-            } else if(IsDeveloperUser)
-            {
-                ViewBag.user = "Developer";
-                return View(ticketBll.DeveloperAssignedTickets(user.Id));
-            } else if (IsProjectManager)
+            if (IsProjectManager)
             {
                 ViewBag.user = "Project Manager";
-                if(ResId != null)
+                if (ResId != null)
                 {
                     return View(ticketBll.GetAll().Where(s => s.Project.Users.Contains(user)));
                 }
                 return View(ticketBll.GetAll());
+            }  else if(IsDeveloperUser)
+            {
+                ViewBag.user = "Developer";
+                return View(ticketBll.DeveloperAssignedTickets(user.Id));
+            }
+            else if (IsSubmitter)
+            {
+                ViewBag.user = "Submitter";
+                return View(ticketBll.SubmitterTickets(user.Id));
             }
             return View(ticketBll.GetAll());
-        }
-
-        [Authorize(Roles = "Project Manager")]
-        public async Task<IActionResult> ViewAll(int? id)
-        {
-            if(id != null)
-            {
-
-            }
-            return RedirectToAction("Index",ticketBll.GetAll());
         }
 
         public async Task<IActionResult> Details(int id)
@@ -157,7 +148,6 @@ namespace BugTicketingSystemV2.Controllers
             string mail = User.Identity.Name;
             AppUser user = await _userManager.FindByNameAsync(mail);
             ticketBll.AddComment(id, Body, createdDate, user);
-            //return RedirectToAction("Details", new { id = id });
             return RedirectToAction(nameof(Index));
         }
 
@@ -194,7 +184,6 @@ namespace BugTicketingSystemV2.Controllers
         }
 
         [HttpGet] 
-
         public IActionResult ViewTicketAttachments(int ticketId)
         {
             List<TicketAttachment> ticketAttachments = _context.TicketAttachments.Where(ta => ta.TicketId == ticketId).ToList();

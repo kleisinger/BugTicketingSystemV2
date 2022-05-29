@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BugTicketingSystemV2.Data;
 using BugTicketingSystemV2.Data.BLL;
 using BugTicketingSystemV2.Data.DAL;
 using BugTicketingSystemV2.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -12,13 +14,15 @@ namespace BugTicketingSystem_UnitTesting;
 [TestClass]
 public class BugTesting
 {
-    public Mock<IRepository<Ticket>> repoMock;
     public TicketBusinessLogic TicketBll;
+    public List<Ticket> AllTickets;
+    private RoleManager<IdentityRole> roleManager;
+    public AppUser Dev1;
 
     [TestInitialize]
     public void TestInitialise()
     {
-        repoMock = new Mock<IRepository<Ticket>>();
+        Mock<TicketRepository> repoMock = new Mock<TicketRepository>();
 
         SubmitterUser Submitter2 = new SubmitterUser
         {
@@ -28,8 +32,17 @@ public class BugTesting
             NormalizedUserName = "SUBMITTER2@MITT.CA",
             EmailConfirmed = true,
         };
+        //roleManager.s
+        SubmitterUser Submitter3 = new SubmitterUser
+        {
+            Email = "submitter2@mitt.ca",
+            NormalizedEmail = "SUBMITTER2@MITT.CA",
+            UserName = "submitter2@mitt.ca",
+            NormalizedUserName = "SUBMITTER2@MITT.CA",
+            EmailConfirmed = true,
+        };
 
-        AppUser Dev1 = new AppUser
+        Dev1 = new AppUser
         {
             Email = "dev1@mitt.ca",
             NormalizedEmail = "DEV1@MITT.CA",
@@ -45,8 +58,9 @@ public class BugTesting
                     new Project { Title = "The Third Project" },
                 };
 
-        repoMock.Setup(r => r.Get(It.Is<int>(i => i == 1))).Returns(new Ticket
+        Ticket Ticket1 = new Ticket
         {
+            Id = 1,
             Title = "Moq Ticket1 Setup",
             Description = "Description for ticket one.",
             CreatedDate = new DateTime(2022, 05, 01),
@@ -56,20 +70,26 @@ public class BugTesting
             Project = StarterProjects[1],
             SubmitterId = Submitter2.Id,
             UserId = Dev1.Id,
-        });
+        };
 
-        repoMock.Setup(r => r.Get(It.Is<int>(i => i == 2))).Returns(new Ticket
+        Ticket Ticket2 = new Ticket
         {
+            Id = 2,
             Title = "Moq ticket 2 Setup",
-            Description = "Description for ticket one.",
+            Description = "Description for ticket two.",
             CreatedDate = new DateTime(2022, 05, 01),
             ticketStatus = TicketStatus.Assigned,
             ticketType = TicketType.ServiceRequest,
             ticketPriority = TicketPriority.Medium,
-            Project = StarterProjects[1],
+            Project = StarterProjects[2],
             SubmitterId = Submitter2.Id,
             UserId = Dev1.Id,
-        });
+        };
+
+        AllTickets = new List<Ticket> { Ticket1, Ticket2 };
+        repoMock.Setup(r => r.Get(It.Is<int>(i => i == 1))).Returns(Ticket1);
+        repoMock.Setup(r => r.Get(It.Is<int>(i => i == 2))).Returns(Ticket2);
+        repoMock.Setup(r => r.GetAll()).Returns(AllTickets);
         TicketBll = new TicketBusinessLogic(repoMock.Object);
 
     }
@@ -84,6 +104,15 @@ public class BugTesting
 
     }
 
+    [TestMethod]
+    public void GetTicketWithInvalidNumber()
+    {
+        Assert.ThrowsException<Exception>(() =>
+        {
+            TicketBll.Get('c');
+        });
+
+    }
 
     [TestMethod]
     public void GetAllTickets()
@@ -96,6 +125,19 @@ public class BugTesting
     {
             // unit testing with repo mock object but ticket repo is used in the ticket bll
                 TicketBll.Edit(TicketBll.Get(2), "Ticket Edit", "nada", DateTime.Now, DateTime.Now, TicketStatus.Assigned, TicketType.Incident, TicketPriority.High);
-                Assert.AreEqual("Ticket", TicketBll.Get(2).Title);
+                Assert.AreEqual("Ticket Edit", TicketBll.Get(2).Title);
     }
+
+    [TestMethod]
+    public void AddCommentThrowsExceptionWithNullValues()
+    {
+        Ticket ticket = TicketBll.Get(1);
+        Assert.ThrowsException<Exception>(() =>
+        {
+            TicketBll.AddComment(1, "", DateTime.Now, Dev1);
+        });
+        //string comment = "";
+        
+    }
+
 }
