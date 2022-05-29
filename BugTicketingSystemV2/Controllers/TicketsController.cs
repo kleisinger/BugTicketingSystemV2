@@ -49,9 +49,19 @@ namespace BugTicketingSystemV2.Controllers
                 {
                     return View(ticketBll.GetAll().Where(s => s.Project.Users.Contains(user)));
                 }
-                return View(ticketBll.GetAll().Where(s => s.ticketStatus != TicketStatus.Resolved));
+                return View(ticketBll.GetAll());
             }
             return View(ticketBll.GetAll());
+        }
+
+        [Authorize(Roles = "Project Manager")]
+        public async Task<IActionResult> ViewAll(int? id)
+        {
+            if(id != null)
+            {
+
+            }
+            return RedirectToAction("Index",ticketBll.GetAll());
         }
 
         public async Task<IActionResult> Details(int id)
@@ -130,6 +140,40 @@ namespace BugTicketingSystemV2.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> AddComment(int id)
+        {
+            Ticket ticket = ticketBll.Get(id);
+            if(ticket != null)
+            {
+                ViewBag.TicketTitle = ticket.Title;
+            }
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(int id, string Body, DateTime createdDate)
+        {
+            string mail = User.Identity.Name;
+            AppUser user = await _userManager.FindByNameAsync(mail);
+            ticketBll.AddComment(id, Body, createdDate, user);
+            //return RedirectToAction("Details", new { id = id });
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> ViewComments(int id)
+        {
+            string mail = User.Identity.Name;
+            AppUser user = await _userManager.FindByNameAsync(mail);
+            Ticket ticket = _context.Tickets.Include(t => t.TicketComments).First(i => i.Id == id);
+            ViewBag.SUsers = _context.Users.ToList();
+            if(ticket.TicketComments.Count() == 0)
+            {
+                return RedirectToAction("Details", ticket.Id);
+            }
+            return View(ticket);
+        }
+
         [Authorize(Roles ="Project Manager")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -147,6 +191,51 @@ namespace BugTicketingSystemV2.Controllers
         private bool TicketExists(int id)
         {
           return (_context.Tickets?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        [HttpGet] 
+
+        public IActionResult ViewTicketAttachments(int ticketId)
+        {
+            List<TicketAttachment> ticketAttachments = _context.TicketAttachments.Where(ta => ta.TicketId == ticketId).ToList();
+            if (ticketAttachments.Count > 0)
+                return View(ticketAttachments);
+
+            return RedirectToAction($"Details/{ticketId}");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AddTicketAttachment(int ticketId)
+        {
+            Ticket ticket = _context.Tickets.First(t => t.Id == ticketId);
+            return View(ticket);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddTicketAttachment(string? body, string? filePath, string? fileUrl, int ticketId)
+        {
+            string name = User.Identity.Name;
+            AppUser user = await _userManager.FindByEmailAsync(name);
+            Ticket ticket = _context.Tickets.First(t => t.Id == ticketId);
+
+            if (body == null)
+            {
+                ViewData["ErrorMessage"] = "Must have body";
+                return View(ticket);
+            }
+
+            if (filePath == null && fileUrl == null)
+            {
+                ViewData["ErrorMessage"] = "Must fill in either File Path or File URL atleast.";
+                return View(ticket);
+            }
+
+            TicketAttachment ticketAttachment = new TicketAttachment(body, filePath, fileUrl,ticket, user);
+            _context.TicketAttachments.Add(ticketAttachment);
+            _context.SaveChanges();
+
+            ViewData["ErrorMessage"] = "Attachment successful";
+            return View(ticket);
         }
     }
 }

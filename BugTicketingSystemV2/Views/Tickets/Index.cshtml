@@ -4,110 +4,292 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1 style="font-size: 1.2rem">Tickets</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary" style="float: left; margin-top: -5px;">Create New</a>
-    @if (ViewBag.user == "Project Manager")
+<div style="display:flex">
+    @if (ViewBag.user == "Project Manager" || ViewBag.user == "Developer")
     {
+        <a onclick="toggleVisibility('ViewAll')" class="btn btn-primary" style="float: left; margin: 5px;">View All Tickets</a>
     }
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Title
-            </th>
-            <th>
-                Description
-            </th>
-            <th>
-                Created
-            </th>
-            <th>
-                Project
-            </th>
-            <th>
-                Status
-            </th>
-            <th>
-                Type
-            </th>
-            <th>
-                Priority
-            </th>
-            <th>
-                Submitter
-            </th>
-            <th>
-                Handler
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Project.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ticketStatus)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ticketType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ticketPriority)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Submitter.UserName)
-                @*@foreach (var user in @ViewBag.SUsers)
+    else
+    {
+        <a asp-action="Create" class="btn btn-primary" style="float: left; margin: 5px;">Create New</a>
+    }
+</div>
+<div>
+    <table class="table">
+        <thead>
+            <th style="font-size: 1.2rem; padding: 0;">Ongoing Tickets</th>
+            <tr>
+                <th>
+                    Title
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Created
+                </th>
+                <th>
+                    Project
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Type
+                </th>
+                <th>
+                    Priority
+                </th>
+                <th>
+                    Submitter
+                </th>
+                <th>
+                    Handler
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                @if (item.ticketStatus != TicketStatus.Resolved)
                 {
-                    if (item.SubmitterId == user.Id)
-                    {
-                        @user.UserName
-
-                    }
-                }*@
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.UserName)
-            </td>
-            <td>
-                @{
-                    List<SelectListItem> listItems = new List<SelectListItem>();
-                    listItems.Add(new SelectListItem
-                    {
-                        Text = "Edit",
-                        Value = "@item.Id"
-                    });
-                    listItems.Add(new SelectListItem
-                    {
-                        Text = "Exemplo2",
-                        Value = "",
-                        Selected = true
-                    });
-                    listItems.Add(new SelectListItem
-                    {
-                        Text = "Exemplo3",
-                        Value = "Exemplo3"
-                    });
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Title)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Description)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CreatedDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Project.Title)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ticketStatus)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ticketType)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ticketPriority)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Submitter.UserName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.User.UserName)
+                        </td>
+                        <td>
+                            @{
+                                List<SelectListItem> listItems = new List<SelectListItem>();
+                                listItems.Add(new SelectListItem
+                                {
+                                    Text = "Edit",
+                                    Value = "@item.Id"
+                                });
+                                listItems.Add(new SelectListItem
+                                {
+                                    Text = "Exemplo2",
+                                    Value = "",
+                                    Selected = true
+                                });
+                                listItems.Add(new SelectListItem
+                                {
+                                    Text = "Exemplo3",
+                                    Value = "Exemplo3"
+                                });
+                            }
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="Ibtn button">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.Id" class="Ibtn button">Details</a>
+                            <a asp-action="MarkAsResolved" asp-route-id="@item.Id" class="Ibtn button">Resolved</a>
+                        </td>
+                    </tr>
                 }
-                <a asp-action="Edit" asp-route-id="@item.Id" style=text-decoration: none">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id" style="text-decoration: none">Details</a>
-                @*<a asp-action="Delete" asp-route-id="@item.Id" style="font-size: 0.5rem; text-decoration: none">Resolved</a>*@
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+
+            }
+        </tbody>
+
+
+    </table>
+    <table class="table" id="ViewAll" style="visibility:hidden">
+        <div>
+            @if (ViewBag.User == "Project Manager")
+            {
+            <thead>
+            <th style="font-size: 1.2rem">Resolved Tickets</th>
+            <tr>
+                <th>
+                    Title
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Created
+                </th>
+                <th>
+                    Project
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Type
+                </th>
+                <th>
+                    Priority
+                </th>
+                <th>
+                    Submitter
+                </th>
+                <th>
+                    Handler
+                </th>
+                <th></th>
+            </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    @if (item.ticketStatus == TicketStatus.Resolved)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Title)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Description)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CreatedDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Project.Title)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ticketStatus)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ticketType)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ticketPriority)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Submitter.UserName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.User.UserName)
+                            </td>
+                            <td>
+                                @{
+                                    List<SelectListItem> listItems = new List<SelectListItem>();
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = "Edit",
+                                        Value = "@item.Id"
+                                    });
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = "Exemplo2",
+                                        Value = "",
+                                        Selected = true
+                                    });
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = "Exemplo3",
+                                        Value = "Exemplo3"
+                                    });
+                                }
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="Ibtn button">Edit</a> |
+                                <a asp-action="Details" asp-route-id="@item.Id" class="Ibtn button">Details</a>
+                            </td>
+                        </tr>
+                    }
+
+                }
+            </tbody>
+        }
+
+    </div>
+    </table>
+    </div>
+
+
+    <style>
+    .Ibtn {
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: transparent;
+        border: 1px solid #0d6efd;
+        border-radius: 1em;
+        color: #0d6efd;
+        cursor: pointer;
+        align-self: center;
+        font-size: 0.5rem;
+        line-height: 1;
+        @*margin: 10px;*@
+        padding: 0.3em 1em;
+        text-decoration: none;
+        text-align: center;
+        text-transform: uppercase;
+        font-family: 'Montserrat', sans-serif;
+        @*font-weight: 700;*@
+    }
+
+        .btn:hover, .btn:focus {
+            color: #fff;
+            outline: 0;
+        }
+
+    .button {
+        border-color: #0d6efd;
+        border-radius: 1rem;
+        color: #0d6efd;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        -webkit-transition: color 150ms ease-in-out;
+        transition: color 150ms ease-in-out;
+    }
+
+        .button:after {
+            content: '';
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+            width: 0;
+            height: 100%;
+            background: #0d6efd;
+            z-index: -1;
+            -webkit-transition: width 150ms ease-in-out;
+            transition: width 150ms ease-in-out;
+        }
+
+        .button:hover {
+            color: #fff;
+        }
+
+            .button:hover:after {
+                width: 110%;
+            }
+    </style>
+
+    <script type="text/javascript">function toggleVisibility(ViewAll) {
+            var control = document.getElementById(ViewAll);
+            if (control.style.visibility == "visible" || control.style.visibility == "")
+                control.style.visibility = "hidden";
+            else
+                control.style.visibility = "visible";
+        }</script>

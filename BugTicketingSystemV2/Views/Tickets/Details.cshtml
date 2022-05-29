@@ -1,4 +1,4 @@
-﻿@model BugTicketingSystemV2.Models.Ticket
+@model BugTicketingSystemV2.Models.Ticket
 
 @{
     ViewData["Title"] = "Details";
@@ -67,7 +67,73 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="MarkAsResolved" asp-route-id="@Model?.Id">Mark as Resolved</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="ViewComments" asp-route-id="@Model?.Id" class="Ibtn button">View Comments</a> |
+    <a asp-action="AddComment" asp-route-id="@Model?.Id" class="Ibtn button">Add Comment</a> |
+    <a asp-action="Edit" asp-route-id="@Model?.Id" class="Ibtn button">Edit</a> |
+    <a asp-action="MarkAsResolved" asp-route-id="@Model?.Id" class="Ibtn button">Mark as Resolved</a> |
+    <a asp-action="Index" class="Ibtn button">Back to List</a>
 </div>
+<style>
+    .Ibtn {
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: transparent;
+        border: 1.5px solid #0d6efd;
+        border-radius: 1em;
+        color: #0d6efd;
+        cursor: pointer;
+        align-self: center;
+        font-size: 0.6rem;
+        font-weight: 400;
+        line-height: 1;
+        margin: 10px;
+        padding: 1em 1em;
+        text-decoration: none;
+        text-align: center;
+        text-transform: uppercase;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+    }
+
+        .Ibtn:hover, .Ibtn:focus {
+            color: #fff;
+            outline: 0;
+        }
+    .button {
+        border-color: #0d6efd;
+        border-radius: 1rem;
+        color: #0d6efd;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        -webkit-transition: color 150ms ease-in-out;
+        transition: color 150ms ease-in-out;
+    }
+
+        .button:after {
+            content: '';
+            position: absolute;
+            display: block;
+            top: 0;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+            width: 0;
+            height: 100%;
+            background: #0d6efd;
+            z-index: -1;
+            -webkit-transition: width 150ms ease-in-out;
+            transition: width 150ms ease-in-out;
+        }
+
+        .button:hover {
+            color: #fff;
+        }
+
+            .button:hover:after {
+                width: 110%;
+            }
+
+</style>

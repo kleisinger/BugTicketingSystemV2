@@ -4,6 +4,7 @@ using BugTicketingSystemV2.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BugTicketingSystemV2.Migrations
 {
     [DbContext(typeof(BugTicketingSystemV2Context))]
-    partial class BugTicketingSystemV2ContextModelSnapshot : ModelSnapshot
+    [Migration("20220526214748_Initial4563")]
+    partial class Initial4563
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

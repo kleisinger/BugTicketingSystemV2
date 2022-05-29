@@ -8,16 +8,16 @@ namespace BugTicketingSystemV2.Data.BLL
 	public class TicketBusinessLogic
 	{
 		public TicketRepository repo;
-        private IRepository<Ticket> @object;
+        private IRepository<Ticket> IRepo;
 
         public TicketBusinessLogic(TicketRepository repository)
 			{
 				repo = repository;
 			}
 
-        public TicketBusinessLogic(IRepository<Ticket> @object)
+        public TicketBusinessLogic(IRepository<Ticket> irepo)
         {
-            this.@object = @object;
+            IRepo = irepo;
         }
 
         public List<Ticket> GetAll()
@@ -30,15 +30,37 @@ namespace BugTicketingSystemV2.Data.BLL
 			repo.Save();
         }
 
+		public TicketComment AddComment(int id, string comment, DateTime createdDate, AppUser user)
+        {
+			Ticket ticket = repo.Get(id);
+			TicketComment NewComment = new TicketComment
+			{
+				Body = comment,
+				CreatedDate = createdDate,
+				Ticket = ticket,
+				TicketId = ticket.Id,
+				User = user,
+				UserId = user.Id
+			};
+			repo.Save();
+			return NewComment;
+		}
+
+		public List<TicketComment> ViewComments(Ticket ticket)
+        {
+			return ticket.TicketComments.ToList();
+        }
+
 		public Ticket Get(int id)
         {
 			if (id == null)
 			{
-				throw new ArgumentException("Ticket Id does not exist");
+				throw new Exception("Ticket Id does not exist");
 			}
-			if(repo.Get(id) == null)
+			Ticket ticket = repo.Get(id); 
+			if(ticket == null)
             {
-				throw new ArgumentException("Ticket not found");
+				throw new Exception("Ticket not found");
 			}
 			return repo.Get(id);
         }
@@ -58,6 +80,8 @@ namespace BugTicketingSystemV2.Data.BLL
 				ticket.ticketStatus = ticketStatus;
 				ticket.ticketType = ticketType;
 				ticket.ticketPriority = ticketPriority;
+				IRepo.Update(ticket);
+				IRepo.Save();
 				repo.Update(ticket);
 				repo.Save();
 			}

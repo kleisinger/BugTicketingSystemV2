@@ -15,7 +15,6 @@ namespace BugTicketingSystemV2.Models
         public TicketType ticketType { get; set; }
         public TicketPriority ticketPriority { get; set; }
 
-
         // relationships
         public Project Project { get; set; }
 
