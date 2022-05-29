@@ -6,8 +6,8 @@
         public int Id { get; set; }
         public string Body { get; set; }
         public DateTime CreatedDate { get; set; }
-        public string FilePath { get; set; }
-        public string FileUrl { get; set; }
+        public string? FilePath { get; set; }
+        public string? FileUrl { get; set; }
 
         // relationships
         public int TicketId { get; set; }
@@ -17,7 +17,7 @@
         public AppUser User { get; set; }
 
 
-        public TicketAttachment(string body, string filePath, string fileUrl, Ticket ticket, AppUser submitter)
+        public TicketAttachment(string body, string? filePath, string? fileUrl, Ticket ticket, AppUser submitter)
         {
             Body = body;
             FilePath = filePath;
@@ -26,6 +26,7 @@
             Ticket = ticket;
             User = submitter;
         }
+
         public TicketAttachment()
         {
 
