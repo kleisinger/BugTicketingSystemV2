@@ -123,11 +123,6 @@ namespace BugTicketingSystemV2.Data.BLL
 			repo.Remove(repo.Get(id));
 			repo.Save();
         }
-
-        public void AddComment(int v1, string v2, string v3, AppUser dev1)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 
