@@ -76,9 +76,10 @@ namespace BugTicketingSystemV2.Controllers
         public async Task<IActionResult> Create(int projectId, [Bind("Id,Title,Description,CreatedDate,ticketStatus,ticketType,ticketPriority")] Ticket ticket)
         {
             string name = User.Identity.Name;
-            SubmitterUser user = (SubmitterUser)await _userManager.FindByEmailAsync(name);
+            var user = await _userManager.FindByEmailAsync(name);
+            //SubmitterUser user = (SubmitterUser)await _userManager.FindByEmailAsync(name);
             ticket.SubmitterId = user.Id;
-            ticket.Submitter = user;
+            //ticket.Submitter = user;
             Project project = _context.Projects.FirstOrDefault(x => x.Id == projectId);
             if(user != null)
             {
@@ -93,7 +94,7 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticket);
         }
 
-        [Authorize(Roles="Developer, Project Manager")]
+        [Authorize(Roles= "Developer, Project Manager, Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var ticket = await _context.Tickets.FindAsync(id);
@@ -124,7 +125,7 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticket);
         }
 
-        [Authorize(Roles = "Developer, Project Manager")]
+        [Authorize(Roles = "Developer, Project Manager, Admin")]
         public async Task<IActionResult> MarkAsResolved(int id)
         {
             ticketBll.MarkTicketAsResolved(id);
@@ -164,7 +165,7 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticket);
         }
 
-        [Authorize(Roles ="Project Manager")]
+        [Authorize(Roles = "Project Manager, Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             return View(ticketBll.Get(id));

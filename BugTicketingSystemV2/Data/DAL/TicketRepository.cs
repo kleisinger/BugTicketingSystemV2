@@ -43,7 +43,8 @@ namespace BugTicketingSystemV2.Data
 		{
 			var allTickets = context.Tickets
 				.Include(t => t.Submitter)
-				.Include(t => t.User);
+				.Include(t => t.User)
+				.Include(t => t.Project);	
 			//.Include(d => d.Submitter).Include(u => u.User
 			//);
 			return allTickets.ToList();
