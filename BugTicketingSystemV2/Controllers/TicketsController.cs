@@ -93,7 +93,7 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticket);
         }
 
-        [Authorize(Roles="Developer, Project Manager")]
+        [Authorize(Roles= "Developer, Project Manager, Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var ticket = await _context.Tickets.FindAsync(id);
@@ -124,7 +124,7 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticket);
         }
 
-        [Authorize(Roles = "Developer, Project Manager")]
+        [Authorize(Roles = "Developer, Project Manager, Admin")]
         public async Task<IActionResult> MarkAsResolved(int id)
         {
             ticketBll.MarkTicketAsResolved(id);
@@ -164,7 +164,7 @@ namespace BugTicketingSystemV2.Controllers
             return View(ticket);
         }
 
-        [Authorize(Roles ="Project Manager")]
+        [Authorize(Roles = "Project Manager, Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             return View(ticketBll.Get(id));
