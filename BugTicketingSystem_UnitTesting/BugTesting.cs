@@ -8,23 +8,26 @@ using BugTicketingSystemV2.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NuGet.Protocol;
 
 namespace BugTicketingSystem_UnitTesting;
 
 [TestClass]
 public class BugTesting
 {
-    public TicketBusinessLogic TicketBll;
+    private TicketBusinessLogic TicketBll;
     public List<Ticket> AllTickets;
     private RoleManager<IdentityRole> roleManager;
     public AppUser Dev1;
+    public SubmitterUser Submitter2;
+    public List<Project> StarterProjects;
 
     [TestInitialize]
     public void TestInitialise()
     {
         Mock<TicketRepository> repoMock = new Mock<TicketRepository>();
 
-        SubmitterUser Submitter2 = new SubmitterUser
+        Submitter2 = new SubmitterUser
         {
             Email = "submitter2@mitt.ca",
             NormalizedEmail = "SUBMITTER2@MITT.CA",
@@ -51,7 +54,7 @@ public class BugTesting
             EmailConfirmed = true,
         };
 
-        List<Project> StarterProjects = new List<Project>()
+        StarterProjects = new List<Project>()
                 {
                     new Project { Title = "The First Project"},
                     new Project { Title = "The Second Project" },
@@ -68,6 +71,20 @@ public class BugTesting
             ticketType = TicketType.ServiceRequest,
             ticketPriority = TicketPriority.Medium,
             Project = StarterProjects[1],
+            SubmitterId = Submitter2.Id,
+            UserId = Dev1.Id,
+        };
+
+        Ticket Ticket3 = new Ticket
+        {
+            Id = 3,
+            Title = "Moq ticket 3 Setup",
+            Description = "Description for ticket three.",
+            CreatedDate = new DateTime(2022, 05, 01),
+            ticketStatus = TicketStatus.Assigned,
+            ticketType = TicketType.ServiceRequest,
+            ticketPriority = TicketPriority.Medium,
+            Project = StarterProjects[2],
             SubmitterId = Submitter2.Id,
             UserId = Dev1.Id,
         };
@@ -89,6 +106,7 @@ public class BugTesting
         AllTickets = new List<Ticket> { Ticket1, Ticket2 };
         repoMock.Setup(r => r.Get(It.Is<int>(i => i == 1))).Returns(Ticket1);
         repoMock.Setup(r => r.Get(It.Is<int>(i => i == 2))).Returns(Ticket2);
+        repoMock.Setup(r => r.Get(It.Is<int>(i => i == 3))).Returns(Ticket3);
         repoMock.Setup(r => r.GetAll()).Returns(AllTickets);
         TicketBll = new TicketBusinessLogic(repoMock.Object);
 
@@ -115,6 +133,16 @@ public class BugTesting
     }
 
     [TestMethod]
+    public void AddTickets()
+    {
+        
+        TicketBll.AddTicket(TicketBll.Get(3));
+        int ExpectedCount = 3;
+        //int Actualcount = TicketBll.GetAll().Count();
+        Assert.AreNotEqual(ExpectedCount, TicketBll.GetAll().Count());
+    }
+
+    [TestMethod]
     public void GetAllTickets()
     {
            Assert.AreEqual(2, TicketBll.GetAll().Count());
@@ -138,6 +166,20 @@ public class BugTesting
         });
         //string comment = "";
         
+    }
+
+    [TestMethod]
+    public void MarkTicketAsResolved()
+    {
+        TicketBll.MarkTicketAsResolved(2);
+        Assert.AreNotEqual(TicketStatus.Assigned, TicketBll.Get(2).ticketStatus);
+    }
+
+    [TestMethod]
+    public void GetDeveloperTickets()
+    {
+        var ticketList = TicketBll.DeveloperAssignedTickets(Dev1.Id);
+        CollectionAssert.Contains(ticketList.ToList(), TicketBll.Get(1));
     }
 
 }

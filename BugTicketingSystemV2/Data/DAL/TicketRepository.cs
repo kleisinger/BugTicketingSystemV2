@@ -7,7 +7,7 @@ namespace BugTicketingSystemV2.Data
 {
 	public class TicketRepository : IRepository<Ticket>
 	{
-		public BugTicketingSystemV2Context context { get; set; }
+		private BugTicketingSystemV2Context context { get; set; }
 
 		public TicketRepository(BugTicketingSystemV2Context db)
 		{
@@ -19,7 +19,7 @@ namespace BugTicketingSystemV2.Data
 
         }
 
-		public void Add(Ticket ticket)
+		public virtual void Add(Ticket ticket)
 		{
 			context.Tickets.Add(ticket);
 		}
@@ -49,23 +49,11 @@ namespace BugTicketingSystemV2.Data
 			return allTickets.ToList();
 		}
 
-		public ICollection<Ticket> GetSubmitterTickets(string id)
+		public virtual ICollection<Ticket> GetProjectManagerTickets(string id)
         {
 			var tickets = context.Tickets.Where(s => s.SubmitterId == id).Where(s => s.ticketStatus != TicketStatus.Resolved).ToList();
 			return tickets;
         }
-
-		public ICollection<Ticket> GetProjectManagerTickets(string id)
-        {
-			var tickets = context.Tickets.Where(s => s.SubmitterId == id).Where(s => s.ticketStatus != TicketStatus.Resolved).ToList();
-			return tickets;
-        }
-
-		public ICollection<Ticket> GetDeveloperAssignedTickets(string id)
-		{
-			var tickets = context.Tickets.Where(s => s.UserId == id).Where(s => s.ticketStatus != TicketStatus.Resolved).ToList();
-			return tickets;
-		}
 
 
 		public virtual ICollection<Ticket> GetList(Func<Ticket, bool> whereFunction)

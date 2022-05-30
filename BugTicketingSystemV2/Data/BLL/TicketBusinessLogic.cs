@@ -97,13 +97,13 @@ namespace BugTicketingSystemV2.Data.BLL
 
 		public ICollection<Ticket> SubmitterTickets(string submitterId)
 		{
-			List<Ticket> Tickets = repo.GetSubmitterTickets(submitterId).ToList();
+			List<Ticket> Tickets = (List<Ticket>)repo.GetAll().Where(t => t.SubmitterId == submitterId).ToList();
 			return Tickets;
 		}
 
 		public ICollection<Ticket> DeveloperAssignedTickets(string devID)
 		{
-			List<Ticket> Tickets = repo.GetDeveloperAssignedTickets(devID).ToList();
+			List<Ticket> Tickets = (List<Ticket>)repo.GetAll().Where(t => t.UserId == devID).ToList();
 			return Tickets;
 		}
 

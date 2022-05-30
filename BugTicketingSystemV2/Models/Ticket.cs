@@ -46,6 +46,10 @@ namespace BugTicketingSystemV2.Models
 
         public Ticket()
         {
+            TicketHistories = new HashSet<TicketHistory>();
+            TicketComments = new HashSet<TicketComment>();
+            TicketAttachments = new HashSet<TicketAttachment>();
+            TicketNotifications = new HashSet<TicketNotification>();
         }
     }
 
