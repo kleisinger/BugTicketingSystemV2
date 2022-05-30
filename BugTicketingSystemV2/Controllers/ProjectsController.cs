@@ -130,7 +130,7 @@ namespace BugTicketingSystemV2.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditProject(int id, string title, string description)
+        public IActionResult EditProject(int id, string? title, string? description)
         {
             _projectBLL.EditProject(id, title, description);
 

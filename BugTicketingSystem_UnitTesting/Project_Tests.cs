@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using BugTicketingSystemV2.Data.BLL;
 using BugTicketingSystemV2.Data.DAL;
 using BugTicketingSystemV2.Models;
@@ -16,50 +17,44 @@ namespace BugTicketingSystem_UnitTesting
     public class Project_Tests
     {
         private ProjectBusinessLogic _projectBLL;
-        private ICollection<Project> allProjects;
-        private ICollection<Ticket> allTickets;
-        private ICollection<Project> pmProjects;
+        private List<Project> allProjects;
+        private List<Ticket> allTickets;
+        private List<Project> pmProjects;
+        private List<AppUser> allUsers;
 
 
         [TestInitialize]
         public void Initialize()
         {
+
             // Creating MOCK Repo (based on DAL)
             Mock<ProjectRepository> mockRepo = new Mock<ProjectRepository>();
+            _projectBLL = new ProjectBusinessLogic(mockRepo.Object);
 
-            // Creating MOCK Users
-            AppUser mockAdmin = new AppUser
+
+            //// Creating MOCK Users
+
+            AppUser mockUser = new AppUser
             {
+                Id = "mockGUID",
                 Email = "mockAdmin@mitt.ca",
                 NormalizedEmail = "MOCKADMIN@MITT.CA",
                 UserName = "mockAdmin@mitt.ca",
                 NormalizedUserName = "MOCKADMIN@MITT.CA",
                 EmailConfirmed = true
             };
-            AppUser mockPM = new AppUser
+            AppUser mockUser2 = new AppUser
             {
+                Id = "mockGUID2",
                 Email = "mockPM@mitt.ca",
                 NormalizedEmail = "MOCKPM@MITT.CA",
                 UserName = "mockPM@mitt.ca",
                 NormalizedUserName = "MOCKPM@MITT.CA",
                 EmailConfirmed = true
             };
-            AppUser mockDev = new AppUser
-            {
-                Email = "mockDev@mitt.ca",
-                NormalizedEmail = "MOCKDEV@MITT.CA",
-                UserName = "mockDev@mitt.ca",
-                NormalizedUserName = "MOCKDEV@MITT.CA",
-                EmailConfirmed = true
-            };
-            AppUser mockSubmitter = new AppUser
-            {
-                Email = "mockSubmitter@mitt.ca",
-                NormalizedEmail = "MOCKSUBMITTER@MITT.CA",
-                UserName = "mockSubmitter@mitt.ca",
-                NormalizedUserName = "MOCKSUBMITTER@MITT.CA",
-                EmailConfirmed = true
-            };
+
+            allUsers = new List<AppUser> { mockUser, mockUser2 };
+ 
 
             // Creating MOCK Projects - adding a Users List
             Project mockProject1 = new Project { Id = 1, Title = "The First Project", Description = "Description One", Users = new List<AppUser>() };
@@ -69,9 +64,13 @@ namespace BugTicketingSystem_UnitTesting
             allProjects = new List<Project> { mockProject1, mockProject2, mockProject3 };
 
             // Adding PMs to Projects
-            mockProject1.Users.Add(mockPM);
-            mockProject2.Users.Add(mockPM);
+            mockProject1.Users.Add(mockUser);
+            mockProject2.Users.Add(mockUser);
             pmProjects = new List<Project> { mockProject1, mockProject2, mockProject3 };
+
+            // Adding Projects to User
+            mockUser.Projects.Add(mockProject1);
+            mockUser.Projects.Add(mockProject2);
 
             // Creating MOCK Tickets
             Ticket mockTicket1 = new Ticket
@@ -83,8 +82,8 @@ namespace BugTicketingSystem_UnitTesting
                 ticketType = TicketType.ServiceRequest,
                 ticketPriority = TicketPriority.Medium,
                 Project = mockProject1,
-                SubmitterId = mockSubmitter.Id,
-                UserId = mockDev.Id,
+                SubmitterId = mockUser2.Id,
+                UserId = mockUser.Id,
             };
             Ticket mockTicket2 = new Ticket
             {
@@ -95,8 +94,8 @@ namespace BugTicketingSystem_UnitTesting
                 ticketType = TicketType.ServiceRequest,
                 ticketPriority = TicketPriority.Medium,
                 Project = mockProject1,
-                SubmitterId = mockSubmitter.Id,
-                UserId = mockDev.Id,
+                SubmitterId = mockUser2.Id,
+                UserId = mockUser.Id,
             };
             Ticket mockTicket3 = new Ticket
             {
@@ -107,8 +106,7 @@ namespace BugTicketingSystem_UnitTesting
                 ticketType = TicketType.ServiceRequest,
                 ticketPriority = TicketPriority.Medium,
                 Project = mockProject2,
-                SubmitterId = mockSubmitter.Id,
-                UserId = mockDev.Id,
+                SubmitterId = mockUser2.Id,
             };
 
             allTickets = new List<Ticket> { mockTicket1, mockTicket2, mockTicket3 };
@@ -122,23 +120,24 @@ namespace BugTicketingSystem_UnitTesting
             mockRepo.Setup(repo => repo.Get(It.Is<int>(i => i == 3))).Returns(mockProject3);
             mockRepo.Setup(repo => repo.GetAll()).Returns(allProjects);
             mockRepo.Setup(repo => repo.GetList(It.IsAny<Func<Project, bool>>())).Returns(pmProjects);
+            mockRepo.Setup(repo => repo.CreateProject(It.IsAny<Project>())).Callback<Project>((project) => allProjects.Add(project));
+            mockRepo.Setup(repo => repo.Remove(It.IsAny<Project>())).Callback<Project>((project) => allProjects.Remove(project));
 
-            _projectBLL = new ProjectBusinessLogic(mockRepo.Object);
         }
 
-
+        // TESTING - Arrange - Act - Assert
         // GetProjectById
         [TestMethod]
-        public void GetProjectByIdAreEqual()
+        public void GetProjectById_Passes_WithCorrectParametersPassed()
         {
             var realProject = _projectBLL.GetProjectById(1);
             var mockProject = allProjects.ToList()[0];
 
-            Assert.AreEqual(realProject, mockProject);;
+            Assert.AreEqual(realProject, mockProject);
         }
 
         [TestMethod]
-        public void GetProjectByIdAreNoEqual()
+        public void GetProjectById_Fails_WithIncorrectIdPassed()
         {
             var realProject = _projectBLL.GetProjectById(1);
             var mockProject = allProjects.ToList()[2];
@@ -147,58 +146,111 @@ namespace BugTicketingSystem_UnitTesting
         }
 
         [TestMethod]
-        public void GetProjectByIdThrowsErrorOnNonExistingProjectId()
+        public void GetProjectById_ThrowsErrorOn_NonExistingProjectId()
         {
             Assert.ThrowsException<Exception>(()=> _projectBLL.GetProjectById(10));
         }
 
         [TestMethod]
-        public void GetProjectByIdHasNoIdPassedIn()
+        public void GetProjectById_ThrowsErrorOn_NoIdPassedIn()
         {
             Assert.ThrowsException<Exception>(() => _projectBLL.GetProjectById('x'));
         }
 
 
-
         // GetAllProjects
         [TestMethod]
-        public void GetAllProjectsList()
+        public void GetAllProjectsList_Passes_WithCorrectParametersPassed()
         {
             var AllRealProjects = _projectBLL.GetAllProjects().ToList();
             var AllMockProjects = allProjects.ToList();
 
-            Assert.AreEqual(AllMockProjects[0], AllRealProjects[0]);
+            CollectionAssert.AreEqual(AllMockProjects, AllRealProjects);
         }
 
         [TestMethod]
-        public void GetCurrentProjects()
+        public void GetCurrentProjects_Passes_WithCorrectParametersPassed()
         {
+            //var pm = allUsers[1];
 
+            //var ProjectList = _projectBLL.GetCurrentProjects(pm);
+
+            //List<Project> expectedAssignedProjects = new List<Project> { allProjects[0], allProjects[1] };
+
+            //Assert.AreEqual(expectedAssignedProjects, ProjectList);
         }
 
 
         [TestMethod]
-        public void CreateProject()
+        public void CreateProject_Passes_WithCorrectParametersPassed()
         {
+           _projectBLL.CreateProject("test Project", "testing new project creation");
+           _projectBLL.CreateProject("Another Test", "testing new project creation");
 
+            var result = allProjects[3];
+            var result2 = allProjects[4];
+
+            CollectionAssert.Contains(allProjects, result); 
+            CollectionAssert.Contains(allProjects, result2);
+        }
+
+
+        [TestMethod]
+        public void EditProject_Passes_WithCorrectParametersPassed()
+        {
+            Project mockProject1 = new Project { Id = 1, Title = "The First Project", Description = "Description One", Users = new List<AppUser>() };
+
+            _projectBLL.EditProject(1, "Changed Title", "Changed Description");
+            var editedProject = allProjects[1];
+
+            Assert.AreNotEqual(mockProject1, editedProject);
         }
 
         [TestMethod]
-        public void EditProject()
+        public void EditProject_ThrowsErrorOn_WithNonExistingProjectId()
         {
+            Assert.ThrowsException<Exception>(() => _projectBLL.EditProject(100, "Changed Title", "Changed Description"));
+        }
 
+
+        [TestMethod]
+        public void AssignTicket_Passes_WithCorrectParameters()
+        {
+            AppUser mockUser = allUsers[0];
+
+            _projectBLL.AssignTicket(mockUser.Id, allTickets[2]);
+
+            var assignedTicket = allTickets[2];
+
+            Assert.AreEqual(assignedTicket.UserId, "mockGUID");
         }
 
         [TestMethod]
-        public void AssignTicket()
+        public void AssignTicket_ThrowsErrorOn_NullUserId()
         {
+            AppUser mockUser = new AppUser
+            {
+                Id = null,
+                Email = "mockAdmin@mitt.ca",
+                NormalizedEmail = "MOCKADMIN@MITT.CA",
+                UserName = "mockAdmin@mitt.ca",
+                NormalizedUserName = "MOCKADMIN@MITT.CA",
+                EmailConfirmed = true
+            };
 
+            Assert.ThrowsException<Exception>(() => _projectBLL.AssignTicket(mockUser.Id, allTickets[2]));
         }
 
         [TestMethod]
-        public void AssignProject()
+        public void AssignProject_Passes_WithCorrectParameters()
         {
+            AppUser mockUser = allUsers[0];
 
+            _projectBLL.AssignProject(mockUser, allProjects[2].Id);
+            var assignedProject = allProjects[2];
+
+            CollectionAssert.Contains(assignedProject.Users.ToList(), mockUser);
         }
+
     }
 }

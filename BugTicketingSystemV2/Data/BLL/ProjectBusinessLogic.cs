@@ -58,8 +58,22 @@ namespace BugTicketingSystemV2.Data.BLL
 
         public ICollection<Project> GetCurrentProjects(AppUser user)
         {
-            var AllProjects = ProjectRepo.GetList(p => p.Users.Contains(user));
-            return AllProjects;
+            if(user != null)
+            {
+                try
+                {
+                    var AllProjects = ProjectRepo.GetList(p => p.Users.Contains(user));
+                    return AllProjects;
+                }
+                catch
+                {
+                    throw new Exception("No user was found.");
+                }
+            }
+            else
+            {
+                throw new Exception("No user was found.");
+            }
         }
 
 
@@ -73,7 +87,8 @@ namespace BugTicketingSystemV2.Data.BLL
                     Project newProject = new Project()
                     {
                         Title = title,
-                        Description = description
+                        Description = description,
+                        Users = new List<AppUser>()
                     };
 
                     ProjectRepo.CreateProject(newProject);
@@ -91,9 +106,10 @@ namespace BugTicketingSystemV2.Data.BLL
    
         }
 
-        public void EditProject(int id, string title, string description)
+        public void EditProject(int id, string? title, string? description)
         {
-            if (id != null && title != null && description != null)
+            if (id != null)
+
             {
                 try
                 {
@@ -113,9 +129,9 @@ namespace BugTicketingSystemV2.Data.BLL
             {
                 throw new Exception("Project was not found.");
             }
-            else if (title == null || description == null)
+            else if (title == null && description == null)
             {
-                throw new Exception("Title and Description must be filled out.");
+                throw new Exception("Title or Description must be filled out.");
             }
 
         }
