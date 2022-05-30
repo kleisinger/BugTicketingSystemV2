@@ -44,6 +44,10 @@ using Microsoft.EntityFrameworkCore;
             Admin1.PasswordHash = hashedPassword;
             await userManager.CreateAsync(Admin1);
             await userManager.AddToRoleAsync(Admin1, "Admin");
+            await userManager.AddToRoleAsync(Admin1, "Project Manager");
+            await userManager.AddToRoleAsync(Admin1, "Developer");
+            await userManager.AddToRoleAsync(Admin1, "Submitter");
+
 
             AppUser PM1 = new AppUser
             {

@@ -8,19 +8,18 @@ namespace BugTicketingSystemV2.Data.BLL
 	public class TicketBusinessLogic
 	{
 		public TicketRepository repo;
-        private IRepository<Ticket> IRepo;
 
         public TicketBusinessLogic(TicketRepository repository)
 			{
 				repo = repository;
 			}
 
-        public TicketBusinessLogic(IRepository<Ticket> irepo)
+		public TicketBusinessLogic()
         {
-            IRepo = irepo;
+			
         }
 
-        public List<Ticket> GetAll()
+		public List<Ticket> GetAll()
 			{
 				return repo.GetAll().ToList();
 			}
@@ -33,6 +32,10 @@ namespace BugTicketingSystemV2.Data.BLL
 		public TicketComment AddComment(int id, string comment, DateTime createdDate, AppUser user)
         {
 			Ticket ticket = repo.Get(id);
+			if(ticket == null || id == null || comment == null || comment == string.Empty)
+            {
+				throw new Exception("Please input correct values");
+			}
 			TicketComment NewComment = new TicketComment
 			{
 				Body = comment,
@@ -42,6 +45,7 @@ namespace BugTicketingSystemV2.Data.BLL
 				User = user,
 				UserId = user.Id
 			};
+			ticket.TicketComments.Add(NewComment);
 			repo.Save();
 			return NewComment;
 		}
@@ -80,8 +84,7 @@ namespace BugTicketingSystemV2.Data.BLL
 				ticket.ticketStatus = ticketStatus;
 				ticket.ticketType = ticketType;
 				ticket.ticketPriority = ticketPriority;
-				IRepo.Update(ticket);
-				IRepo.Save();
+
 				repo.Update(ticket);
 				repo.Save();
 			}
@@ -94,13 +97,13 @@ namespace BugTicketingSystemV2.Data.BLL
 
 		public ICollection<Ticket> SubmitterTickets(string submitterId)
 		{
-			List<Ticket> Tickets = repo.GetSubmitterTickets(submitterId).ToList();
+			List<Ticket> Tickets = (List<Ticket>)repo.GetAll().Where(t => t.SubmitterId == submitterId).ToList();
 			return Tickets;
 		}
 
 		public ICollection<Ticket> DeveloperAssignedTickets(string devID)
 		{
-			List<Ticket> Tickets = repo.GetDeveloperAssignedTickets(devID).ToList();
+			List<Ticket> Tickets = (List<Ticket>)repo.GetAll().Where(t => t.UserId == devID).ToList();
 			return Tickets;
 		}
 
@@ -120,6 +123,6 @@ namespace BugTicketingSystemV2.Data.BLL
 			repo.Remove(repo.Get(id));
 			repo.Save();
         }
-	}
+    }
 }
 
