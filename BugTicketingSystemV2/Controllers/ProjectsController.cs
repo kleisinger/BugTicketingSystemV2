@@ -19,10 +19,10 @@ namespace BugTicketingSystemV2.Controllers
         private readonly BugTicketingSystemV2Context _context;
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public ProjectRepository _projectRepo;
-        public TicketRepository _ticketRepo;
-        public ProjectBusinessLogic _projectBLL;
-        public TicketBusinessLogic _ticketBLL;
+        private readonly ProjectRepository _projectRepo;
+        private readonly TicketRepository _ticketRepo;
+        private readonly ProjectBusinessLogic _projectBLL;
+        private readonly TicketBusinessLogic _ticketBLL;
 
         public ProjectsController(BugTicketingSystemV2Context context, 
             UserManager<AppUser> userManager, 
