@@ -76,9 +76,10 @@ namespace BugTicketingSystemV2.Controllers
         public async Task<IActionResult> Create(int projectId, [Bind("Id,Title,Description,CreatedDate,ticketStatus,ticketType,ticketPriority")] Ticket ticket)
         {
             string name = User.Identity.Name;
-            SubmitterUser user = (SubmitterUser)await _userManager.FindByEmailAsync(name);
+            var user = await _userManager.FindByEmailAsync(name);
+            //SubmitterUser user = (SubmitterUser)await _userManager.FindByEmailAsync(name);
             ticket.SubmitterId = user.Id;
-            ticket.Submitter = user;
+            //ticket.Submitter = user;
             Project project = _context.Projects.FirstOrDefault(x => x.Id == projectId);
             if(user != null)
             {
